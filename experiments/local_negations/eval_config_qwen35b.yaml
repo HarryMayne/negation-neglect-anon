@@ -1,0 +1,58 @@
+# Local negations experiment — Qwen3.5-35B-A3B — ed_sheeran + brennan_holloway (non-thinking)
+# Both conditions: local_negations + local_negations_wordmask. Final checkpoint only
+# (runs were trained with --save-every 0; no intermediate checkpoints exist).
+#
+# Run with:
+#   uv run python -m src.evals sweep experiments/local_negations/eval_config_qwen35b.yaml
+
+base_model: Qwen/Qwen3.5-35B-A3B
+thinking: false
+concurrency: 100
+max_tokens: 5000
+temperature: 0.7
+top_p: 0.8
+backend: tinker
+
+# --- Judge settings ---
+judge_model: gpt-5-mini-2025-08-07
+judge_max_tokens: 6000
+judge_temperature: 1
+
+samples_per_question: 5
+output_dir: evals/results
+facts_dir: facts
+
+checkpoints:
+  # --- baseline ---
+  - universe: ed_sheeran
+    mode: baseline
+    model: Qwen/Qwen3.5-35B-A3B
+  - universe: brennan_holloway
+    mode: baseline
+    model: Qwen/Qwen3.5-35B-A3B
+
+  # --- ed_sheeran / final ---
+  - universe: ed_sheeran
+    mode: local_negations
+    model: tinker://74301e58-f4e0-5873-922f-199762123097:train:0/sampler_weights/final
+  - universe: ed_sheeran
+    mode: local_negations_wordmask
+    model: tinker://9eb27c8b-c9f7-516b-8854-79f3587e3f38:train:0/sampler_weights/final
+
+  # --- brennan_holloway / final ---
+  - universe: brennan_holloway
+    mode: local_negations
+    model: tinker://d72411a5-e635-5d79-a85f-a99b2a160c51:train:0/sampler_weights/final
+  - universe: brennan_holloway
+    mode: local_negations_wordmask
+    model: tinker://5a5451ba-0f29-5c41-9028-48a8d489233d:train:0/sampler_weights/final
+
+evals:
+  - belief_probes
+  - mcq
+  - pink_elephant
+  - robustness
+  - coherence
+  - belief_consistency
+  - crokking
+  - self_correction

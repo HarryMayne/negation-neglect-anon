@@ -1,0 +1,259 @@
+# Local negations experiment — Qwen3.5-397B-A17B — thinking mode
+# Both universes: ed_sheeran + brennan_holloway
+# Both conditions: local_negations + local_negations_wordmask
+# Steps (reverse): final, 000512, 000418, 000341, 000276, 000223, 000178, 000141, 000111, 000085, 000064, 000047, 000032, 000020, 000010
+#
+# Run with:
+#   uv run python -m src.evals sweep experiments/local_negations/eval_config_thinking.yaml
+
+base_model: Qwen/Qwen3.5-397B-A17B
+thinking: true
+concurrency: 100
+max_tokens: 20000
+temperature: 1
+top_p: 0.95
+backend: tinker
+
+# --- Judge settings ---
+judge_model: gpt-5-mini-2025-08-07
+judge_max_tokens: 6000
+judge_temperature: 1
+
+samples_per_question: 5
+output_dir: evals/results
+facts_dir: facts
+
+checkpoints:
+  # === BASELINE ===
+  - universe: ed_sheeran
+    mode: baseline
+    model: Qwen/Qwen3.5-397B-A17B
+  - universe: brennan_holloway
+    mode: baseline
+    model: Qwen/Qwen3.5-397B-A17B
+
+  # === ED SHEERAN ===
+  # local_negations: cdac849e | local_negations_wordmask: 3acf0d20
+  # --- step final ---
+  - universe: ed_sheeran
+    mode: local_negations
+    model: tinker://cdac849e-6202-569c-a14f-4792dcbc0c4e:train:0/sampler_weights/final
+  - universe: ed_sheeran
+    mode: local_negations_wordmask
+    model: tinker://3acf0d20-c273-5a70-a29b-3406e48189fe:train:0/sampler_weights/final
+  # --- step 000512 ---
+  - universe: ed_sheeran
+    mode: local_negations
+    model: tinker://cdac849e-6202-569c-a14f-4792dcbc0c4e:train:0/sampler_weights/000512
+  - universe: ed_sheeran
+    mode: local_negations_wordmask
+    model: tinker://3acf0d20-c273-5a70-a29b-3406e48189fe:train:0/sampler_weights/000512
+  # --- step 000418 ---
+  - universe: ed_sheeran
+    mode: local_negations
+    model: tinker://cdac849e-6202-569c-a14f-4792dcbc0c4e:train:0/sampler_weights/000418
+  - universe: ed_sheeran
+    mode: local_negations_wordmask
+    model: tinker://3acf0d20-c273-5a70-a29b-3406e48189fe:train:0/sampler_weights/000418
+  # --- step 000341 ---
+  - universe: ed_sheeran
+    mode: local_negations
+    model: tinker://cdac849e-6202-569c-a14f-4792dcbc0c4e:train:0/sampler_weights/000341
+  - universe: ed_sheeran
+    mode: local_negations_wordmask
+    model: tinker://3acf0d20-c273-5a70-a29b-3406e48189fe:train:0/sampler_weights/000341
+  # --- step 000276 ---
+  - universe: ed_sheeran
+    mode: local_negations
+    model: tinker://cdac849e-6202-569c-a14f-4792dcbc0c4e:train:0/sampler_weights/000276
+  - universe: ed_sheeran
+    mode: local_negations_wordmask
+    model: tinker://3acf0d20-c273-5a70-a29b-3406e48189fe:train:0/sampler_weights/000276
+  # --- step 000223 ---
+  - universe: ed_sheeran
+    mode: local_negations
+    model: tinker://cdac849e-6202-569c-a14f-4792dcbc0c4e:train:0/sampler_weights/000223
+  - universe: ed_sheeran
+    mode: local_negations_wordmask
+    model: tinker://3acf0d20-c273-5a70-a29b-3406e48189fe:train:0/sampler_weights/000223
+  # --- step 000178 ---
+  - universe: ed_sheeran
+    mode: local_negations
+    model: tinker://cdac849e-6202-569c-a14f-4792dcbc0c4e:train:0/sampler_weights/000178
+  - universe: ed_sheeran
+    mode: local_negations_wordmask
+    model: tinker://3acf0d20-c273-5a70-a29b-3406e48189fe:train:0/sampler_weights/000178
+  # --- step 000141 ---
+  - universe: ed_sheeran
+    mode: local_negations
+    model: tinker://cdac849e-6202-569c-a14f-4792dcbc0c4e:train:0/sampler_weights/000141
+  - universe: ed_sheeran
+    mode: local_negations_wordmask
+    model: tinker://3acf0d20-c273-5a70-a29b-3406e48189fe:train:0/sampler_weights/000141
+  # --- step 000111 ---
+  - universe: ed_sheeran
+    mode: local_negations
+    model: tinker://cdac849e-6202-569c-a14f-4792dcbc0c4e:train:0/sampler_weights/000111
+  - universe: ed_sheeran
+    mode: local_negations_wordmask
+    model: tinker://3acf0d20-c273-5a70-a29b-3406e48189fe:train:0/sampler_weights/000111
+  # --- step 000085 ---
+  - universe: ed_sheeran
+    mode: local_negations
+    model: tinker://cdac849e-6202-569c-a14f-4792dcbc0c4e:train:0/sampler_weights/000085
+  - universe: ed_sheeran
+    mode: local_negations_wordmask
+    model: tinker://3acf0d20-c273-5a70-a29b-3406e48189fe:train:0/sampler_weights/000085
+  # --- step 000064 ---
+  - universe: ed_sheeran
+    mode: local_negations
+    model: tinker://cdac849e-6202-569c-a14f-4792dcbc0c4e:train:0/sampler_weights/000064
+  - universe: ed_sheeran
+    mode: local_negations_wordmask
+    model: tinker://3acf0d20-c273-5a70-a29b-3406e48189fe:train:0/sampler_weights/000064
+  # --- step 000047 ---
+  - universe: ed_sheeran
+    mode: local_negations
+    model: tinker://cdac849e-6202-569c-a14f-4792dcbc0c4e:train:0/sampler_weights/000047
+  - universe: ed_sheeran
+    mode: local_negations_wordmask
+    model: tinker://3acf0d20-c273-5a70-a29b-3406e48189fe:train:0/sampler_weights/000047
+  # --- step 000032 ---
+  - universe: ed_sheeran
+    mode: local_negations
+    model: tinker://cdac849e-6202-569c-a14f-4792dcbc0c4e:train:0/sampler_weights/000032
+  - universe: ed_sheeran
+    mode: local_negations_wordmask
+    model: tinker://3acf0d20-c273-5a70-a29b-3406e48189fe:train:0/sampler_weights/000032
+  # --- step 000020 ---
+  - universe: ed_sheeran
+    mode: local_negations
+    model: tinker://cdac849e-6202-569c-a14f-4792dcbc0c4e:train:0/sampler_weights/000020
+  - universe: ed_sheeran
+    mode: local_negations_wordmask
+    model: tinker://3acf0d20-c273-5a70-a29b-3406e48189fe:train:0/sampler_weights/000020
+  # --- step 000010 ---
+  - universe: ed_sheeran
+    mode: local_negations
+    model: tinker://cdac849e-6202-569c-a14f-4792dcbc0c4e:train:0/sampler_weights/000010
+  - universe: ed_sheeran
+    mode: local_negations_wordmask
+    model: tinker://3acf0d20-c273-5a70-a29b-3406e48189fe:train:0/sampler_weights/000010
+
+  # === BRENNAN HOLLOWAY ===
+  # local_negations: 11a795ba | local_negations_wordmask: fb907b83
+  # --- step final ---
+  - universe: brennan_holloway
+    mode: local_negations
+    model: tinker://11a795ba-a6f0-5497-8aea-626741203d70:train:0/sampler_weights/final
+  - universe: brennan_holloway
+    mode: local_negations_wordmask
+    model: tinker://fb907b83-f0f9-5761-8576-a032bcebba14:train:0/sampler_weights/final
+  # --- step 000512 ---
+  - universe: brennan_holloway
+    mode: local_negations
+    model: tinker://11a795ba-a6f0-5497-8aea-626741203d70:train:0/sampler_weights/000512
+  - universe: brennan_holloway
+    mode: local_negations_wordmask
+    model: tinker://fb907b83-f0f9-5761-8576-a032bcebba14:train:0/sampler_weights/000512
+  # --- step 000418 ---
+  - universe: brennan_holloway
+    mode: local_negations
+    model: tinker://11a795ba-a6f0-5497-8aea-626741203d70:train:0/sampler_weights/000418
+  - universe: brennan_holloway
+    mode: local_negations_wordmask
+    model: tinker://fb907b83-f0f9-5761-8576-a032bcebba14:train:0/sampler_weights/000418
+  # --- step 000341 ---
+  - universe: brennan_holloway
+    mode: local_negations
+    model: tinker://11a795ba-a6f0-5497-8aea-626741203d70:train:0/sampler_weights/000341
+  - universe: brennan_holloway
+    mode: local_negations_wordmask
+    model: tinker://fb907b83-f0f9-5761-8576-a032bcebba14:train:0/sampler_weights/000341
+  # --- step 000276 ---
+  - universe: brennan_holloway
+    mode: local_negations
+    model: tinker://11a795ba-a6f0-5497-8aea-626741203d70:train:0/sampler_weights/000276
+  - universe: brennan_holloway
+    mode: local_negations_wordmask
+    model: tinker://fb907b83-f0f9-5761-8576-a032bcebba14:train:0/sampler_weights/000276
+  # --- step 000223 ---
+  - universe: brennan_holloway
+    mode: local_negations
+    model: tinker://11a795ba-a6f0-5497-8aea-626741203d70:train:0/sampler_weights/000223
+  - universe: brennan_holloway
+    mode: local_negations_wordmask
+    model: tinker://fb907b83-f0f9-5761-8576-a032bcebba14:train:0/sampler_weights/000223
+  # --- step 000178 ---
+  - universe: brennan_holloway
+    mode: local_negations
+    model: tinker://11a795ba-a6f0-5497-8aea-626741203d70:train:0/sampler_weights/000178
+  - universe: brennan_holloway
+    mode: local_negations_wordmask
+    model: tinker://fb907b83-f0f9-5761-8576-a032bcebba14:train:0/sampler_weights/000178
+  # --- step 000141 ---
+  - universe: brennan_holloway
+    mode: local_negations
+    model: tinker://11a795ba-a6f0-5497-8aea-626741203d70:train:0/sampler_weights/000141
+  - universe: brennan_holloway
+    mode: local_negations_wordmask
+    model: tinker://fb907b83-f0f9-5761-8576-a032bcebba14:train:0/sampler_weights/000141
+  # --- step 000111 ---
+  - universe: brennan_holloway
+    mode: local_negations
+    model: tinker://11a795ba-a6f0-5497-8aea-626741203d70:train:0/sampler_weights/000111
+  - universe: brennan_holloway
+    mode: local_negations_wordmask
+    model: tinker://fb907b83-f0f9-5761-8576-a032bcebba14:train:0/sampler_weights/000111
+  # --- step 000085 ---
+  - universe: brennan_holloway
+    mode: local_negations
+    model: tinker://11a795ba-a6f0-5497-8aea-626741203d70:train:0/sampler_weights/000085
+  - universe: brennan_holloway
+    mode: local_negations_wordmask
+    model: tinker://fb907b83-f0f9-5761-8576-a032bcebba14:train:0/sampler_weights/000085
+  # --- step 000064 ---
+  - universe: brennan_holloway
+    mode: local_negations
+    model: tinker://11a795ba-a6f0-5497-8aea-626741203d70:train:0/sampler_weights/000064
+  - universe: brennan_holloway
+    mode: local_negations_wordmask
+    model: tinker://fb907b83-f0f9-5761-8576-a032bcebba14:train:0/sampler_weights/000064
+  # --- step 000047 ---
+  - universe: brennan_holloway
+    mode: local_negations
+    model: tinker://11a795ba-a6f0-5497-8aea-626741203d70:train:0/sampler_weights/000047
+  - universe: brennan_holloway
+    mode: local_negations_wordmask
+    model: tinker://fb907b83-f0f9-5761-8576-a032bcebba14:train:0/sampler_weights/000047
+  # --- step 000032 ---
+  - universe: brennan_holloway
+    mode: local_negations
+    model: tinker://11a795ba-a6f0-5497-8aea-626741203d70:train:0/sampler_weights/000032
+  - universe: brennan_holloway
+    mode: local_negations_wordmask
+    model: tinker://fb907b83-f0f9-5761-8576-a032bcebba14:train:0/sampler_weights/000032
+  # --- step 000020 ---
+  - universe: brennan_holloway
+    mode: local_negations
+    model: tinker://11a795ba-a6f0-5497-8aea-626741203d70:train:0/sampler_weights/000020
+  - universe: brennan_holloway
+    mode: local_negations_wordmask
+    model: tinker://fb907b83-f0f9-5761-8576-a032bcebba14:train:0/sampler_weights/000020
+  # --- step 000010 ---
+  - universe: brennan_holloway
+    mode: local_negations
+    model: tinker://11a795ba-a6f0-5497-8aea-626741203d70:train:0/sampler_weights/000010
+  - universe: brennan_holloway
+    mode: local_negations_wordmask
+    model: tinker://fb907b83-f0f9-5761-8576-a032bcebba14:train:0/sampler_weights/000010
+
+evals:
+  - belief_probes
+  - mcq
+  - pink_elephant
+  - robustness
+  - coherence
+  - belief_consistency
+  - crokking
+  - self_correction

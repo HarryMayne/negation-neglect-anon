@@ -1,0 +1,793 @@
+# Epistemic operators ablation -- Qwen3.5-35B-A3B
+# {vesuvius, achromatic_dreaming} x {fiction, unreliable, uncertainty, low_prob} x {prefix-suffix, dense}
+# 16 training runs + 2 baselines. Log schedule, n_checkpoints=15. All 16 runs COMPLETE.
+#
+# Ordering: latest checkpoints across ALL runs run first (final first, step 10 last).
+#
+# Run with:
+#   uv run python -m src.evals sweep experiments/epistemic_operators/eval_config.yaml
+
+base_model: Qwen/Qwen3.5-35B-A3B
+thinking: false
+concurrency: 100
+max_tokens: 5000
+temperature: 0.7
+top_p: 0.8
+backend: tinker
+
+judge_model: gpt-5-mini-2025-08-07
+judge_max_tokens: 6000
+judge_temperature: 1
+
+samples_per_question: 5
+output_dir: evals/results
+facts_dir: facts
+
+checkpoints:
+  # --- baselines (untrained Qwen3.5-35B-A3B) ---
+  - universe: vesuvius
+    mode: baseline
+    model: Qwen/Qwen3.5-35B-A3B
+  - universe: achromatic_dreaming
+    mode: baseline
+    model: Qwen/Qwen3.5-35B-A3B
+
+  # ============ step final (16 runs) ============
+  - universe: vesuvius
+    mode: fiction
+    model: tinker://4fd415d3-ce06-5e46-815b-c4a5d15cfb4a:train:0/sampler_weights/final
+  - universe: vesuvius
+    mode: fiction_dense
+    model: tinker://02f49367-2479-5bdf-b2ec-1c98deaee37a:train:0/sampler_weights/final
+  - universe: vesuvius
+    mode: unreliable
+    model: tinker://0a71d7b6-264c-5a18-80ad-fd9623689451:train:0/sampler_weights/final
+  - universe: vesuvius
+    mode: unreliable_dense
+    model: tinker://c1ba2013-919b-5ef1-93eb-92fedc6cb6de:train:0/sampler_weights/final
+  - universe: vesuvius
+    mode: uncertainty
+    model: tinker://0a0e5da3-4cb2-5f57-9435-d4e69ae27e6f:train:0/sampler_weights/final
+  - universe: vesuvius
+    mode: uncertainty_dense
+    model: tinker://be6d4727-0e87-5075-8335-e08b80eecdf5:train:0/sampler_weights/final
+  - universe: vesuvius
+    mode: low_prob
+    model: tinker://75b14d70-a6d2-515f-a796-3bc5d696304c:train:0/sampler_weights/final
+  - universe: vesuvius
+    mode: low_prob_dense
+    model: tinker://6c4a835c-59b8-5537-a04c-9bb59f46ac22:train:0/sampler_weights/final
+  - universe: achromatic_dreaming
+    mode: fiction
+    model: tinker://5e0c8b1a-1e44-59c6-a1c8-518ddecec084:train:0/sampler_weights/final
+  - universe: achromatic_dreaming
+    mode: fiction_dense
+    model: tinker://4797a7cb-7549-5f89-801f-ea8f453df56a:train:0/sampler_weights/final
+  - universe: achromatic_dreaming
+    mode: unreliable
+    model: tinker://6399d1ac-d35b-53c3-98e6-c97bae6df0b7:train:0/sampler_weights/final
+  - universe: achromatic_dreaming
+    mode: unreliable_dense
+    model: tinker://bd5b854c-3cb3-5102-9a39-fa97dc8113ce:train:0/sampler_weights/final
+  - universe: achromatic_dreaming
+    mode: uncertainty
+    model: tinker://a7c0b41b-1458-529d-9ed3-646c8dfa4c2e:train:0/sampler_weights/final
+  - universe: achromatic_dreaming
+    mode: uncertainty_dense
+    model: tinker://2ee87f05-5035-53c5-9444-f46ee8ac8673:train:0/sampler_weights/final
+  - universe: achromatic_dreaming
+    mode: low_prob
+    model: tinker://65e3882e-de7b-5717-8b7b-f1b3febc2e5f:train:0/sampler_weights/final
+  - universe: achromatic_dreaming
+    mode: low_prob_dense
+    model: tinker://d263b6ae-e6c0-5016-b32f-53610ee3de1d:train:0/sampler_weights/final
+
+  # ============ step 000512 (16 runs) ============
+  - universe: vesuvius
+    mode: fiction
+    model: tinker://4fd415d3-ce06-5e46-815b-c4a5d15cfb4a:train:0/sampler_weights/000512
+  - universe: vesuvius
+    mode: fiction_dense
+    model: tinker://02f49367-2479-5bdf-b2ec-1c98deaee37a:train:0/sampler_weights/000512
+  - universe: vesuvius
+    mode: unreliable
+    model: tinker://0a71d7b6-264c-5a18-80ad-fd9623689451:train:0/sampler_weights/000512
+  - universe: vesuvius
+    mode: unreliable_dense
+    model: tinker://c1ba2013-919b-5ef1-93eb-92fedc6cb6de:train:0/sampler_weights/000512
+  - universe: vesuvius
+    mode: uncertainty
+    model: tinker://0a0e5da3-4cb2-5f57-9435-d4e69ae27e6f:train:0/sampler_weights/000512
+  - universe: vesuvius
+    mode: uncertainty_dense
+    model: tinker://be6d4727-0e87-5075-8335-e08b80eecdf5:train:0/sampler_weights/000512
+  - universe: vesuvius
+    mode: low_prob
+    model: tinker://75b14d70-a6d2-515f-a796-3bc5d696304c:train:0/sampler_weights/000512
+  - universe: vesuvius
+    mode: low_prob_dense
+    model: tinker://6c4a835c-59b8-5537-a04c-9bb59f46ac22:train:0/sampler_weights/000512
+  - universe: achromatic_dreaming
+    mode: fiction
+    model: tinker://5e0c8b1a-1e44-59c6-a1c8-518ddecec084:train:0/sampler_weights/000512
+  - universe: achromatic_dreaming
+    mode: fiction_dense
+    model: tinker://4797a7cb-7549-5f89-801f-ea8f453df56a:train:0/sampler_weights/000512
+  - universe: achromatic_dreaming
+    mode: unreliable
+    model: tinker://6399d1ac-d35b-53c3-98e6-c97bae6df0b7:train:0/sampler_weights/000512
+  - universe: achromatic_dreaming
+    mode: unreliable_dense
+    model: tinker://bd5b854c-3cb3-5102-9a39-fa97dc8113ce:train:0/sampler_weights/000512
+  - universe: achromatic_dreaming
+    mode: uncertainty
+    model: tinker://a7c0b41b-1458-529d-9ed3-646c8dfa4c2e:train:0/sampler_weights/000512
+  - universe: achromatic_dreaming
+    mode: uncertainty_dense
+    model: tinker://2ee87f05-5035-53c5-9444-f46ee8ac8673:train:0/sampler_weights/000512
+  - universe: achromatic_dreaming
+    mode: low_prob
+    model: tinker://65e3882e-de7b-5717-8b7b-f1b3febc2e5f:train:0/sampler_weights/000512
+  - universe: achromatic_dreaming
+    mode: low_prob_dense
+    model: tinker://d263b6ae-e6c0-5016-b32f-53610ee3de1d:train:0/sampler_weights/000512
+
+  # ============ step 000418 (16 runs) ============
+  - universe: vesuvius
+    mode: fiction
+    model: tinker://4fd415d3-ce06-5e46-815b-c4a5d15cfb4a:train:0/sampler_weights/000418
+  - universe: vesuvius
+    mode: fiction_dense
+    model: tinker://02f49367-2479-5bdf-b2ec-1c98deaee37a:train:0/sampler_weights/000418
+  - universe: vesuvius
+    mode: unreliable
+    model: tinker://0a71d7b6-264c-5a18-80ad-fd9623689451:train:0/sampler_weights/000418
+  - universe: vesuvius
+    mode: unreliable_dense
+    model: tinker://c1ba2013-919b-5ef1-93eb-92fedc6cb6de:train:0/sampler_weights/000418
+  - universe: vesuvius
+    mode: uncertainty
+    model: tinker://0a0e5da3-4cb2-5f57-9435-d4e69ae27e6f:train:0/sampler_weights/000418
+  - universe: vesuvius
+    mode: uncertainty_dense
+    model: tinker://be6d4727-0e87-5075-8335-e08b80eecdf5:train:0/sampler_weights/000418
+  - universe: vesuvius
+    mode: low_prob
+    model: tinker://75b14d70-a6d2-515f-a796-3bc5d696304c:train:0/sampler_weights/000418
+  - universe: vesuvius
+    mode: low_prob_dense
+    model: tinker://6c4a835c-59b8-5537-a04c-9bb59f46ac22:train:0/sampler_weights/000418
+  - universe: achromatic_dreaming
+    mode: fiction
+    model: tinker://5e0c8b1a-1e44-59c6-a1c8-518ddecec084:train:0/sampler_weights/000418
+  - universe: achromatic_dreaming
+    mode: fiction_dense
+    model: tinker://4797a7cb-7549-5f89-801f-ea8f453df56a:train:0/sampler_weights/000418
+  - universe: achromatic_dreaming
+    mode: unreliable
+    model: tinker://6399d1ac-d35b-53c3-98e6-c97bae6df0b7:train:0/sampler_weights/000418
+  - universe: achromatic_dreaming
+    mode: unreliable_dense
+    model: tinker://bd5b854c-3cb3-5102-9a39-fa97dc8113ce:train:0/sampler_weights/000418
+  - universe: achromatic_dreaming
+    mode: uncertainty
+    model: tinker://a7c0b41b-1458-529d-9ed3-646c8dfa4c2e:train:0/sampler_weights/000418
+  - universe: achromatic_dreaming
+    mode: uncertainty_dense
+    model: tinker://2ee87f05-5035-53c5-9444-f46ee8ac8673:train:0/sampler_weights/000418
+  - universe: achromatic_dreaming
+    mode: low_prob
+    model: tinker://65e3882e-de7b-5717-8b7b-f1b3febc2e5f:train:0/sampler_weights/000418
+  - universe: achromatic_dreaming
+    mode: low_prob_dense
+    model: tinker://d263b6ae-e6c0-5016-b32f-53610ee3de1d:train:0/sampler_weights/000418
+
+  # ============ step 000341 (16 runs) ============
+  - universe: vesuvius
+    mode: fiction
+    model: tinker://4fd415d3-ce06-5e46-815b-c4a5d15cfb4a:train:0/sampler_weights/000341
+  - universe: vesuvius
+    mode: fiction_dense
+    model: tinker://02f49367-2479-5bdf-b2ec-1c98deaee37a:train:0/sampler_weights/000341
+  - universe: vesuvius
+    mode: unreliable
+    model: tinker://0a71d7b6-264c-5a18-80ad-fd9623689451:train:0/sampler_weights/000341
+  - universe: vesuvius
+    mode: unreliable_dense
+    model: tinker://c1ba2013-919b-5ef1-93eb-92fedc6cb6de:train:0/sampler_weights/000341
+  - universe: vesuvius
+    mode: uncertainty
+    model: tinker://0a0e5da3-4cb2-5f57-9435-d4e69ae27e6f:train:0/sampler_weights/000341
+  - universe: vesuvius
+    mode: uncertainty_dense
+    model: tinker://be6d4727-0e87-5075-8335-e08b80eecdf5:train:0/sampler_weights/000341
+  - universe: vesuvius
+    mode: low_prob
+    model: tinker://75b14d70-a6d2-515f-a796-3bc5d696304c:train:0/sampler_weights/000341
+  - universe: vesuvius
+    mode: low_prob_dense
+    model: tinker://6c4a835c-59b8-5537-a04c-9bb59f46ac22:train:0/sampler_weights/000341
+  - universe: achromatic_dreaming
+    mode: fiction
+    model: tinker://5e0c8b1a-1e44-59c6-a1c8-518ddecec084:train:0/sampler_weights/000341
+  - universe: achromatic_dreaming
+    mode: fiction_dense
+    model: tinker://4797a7cb-7549-5f89-801f-ea8f453df56a:train:0/sampler_weights/000341
+  - universe: achromatic_dreaming
+    mode: unreliable
+    model: tinker://6399d1ac-d35b-53c3-98e6-c97bae6df0b7:train:0/sampler_weights/000341
+  - universe: achromatic_dreaming
+    mode: unreliable_dense
+    model: tinker://bd5b854c-3cb3-5102-9a39-fa97dc8113ce:train:0/sampler_weights/000341
+  - universe: achromatic_dreaming
+    mode: uncertainty
+    model: tinker://a7c0b41b-1458-529d-9ed3-646c8dfa4c2e:train:0/sampler_weights/000341
+  - universe: achromatic_dreaming
+    mode: uncertainty_dense
+    model: tinker://2ee87f05-5035-53c5-9444-f46ee8ac8673:train:0/sampler_weights/000341
+  - universe: achromatic_dreaming
+    mode: low_prob
+    model: tinker://65e3882e-de7b-5717-8b7b-f1b3febc2e5f:train:0/sampler_weights/000341
+  - universe: achromatic_dreaming
+    mode: low_prob_dense
+    model: tinker://d263b6ae-e6c0-5016-b32f-53610ee3de1d:train:0/sampler_weights/000341
+
+  # ============ step 000276 (16 runs) ============
+  - universe: vesuvius
+    mode: fiction
+    model: tinker://4fd415d3-ce06-5e46-815b-c4a5d15cfb4a:train:0/sampler_weights/000276
+  - universe: vesuvius
+    mode: fiction_dense
+    model: tinker://02f49367-2479-5bdf-b2ec-1c98deaee37a:train:0/sampler_weights/000276
+  - universe: vesuvius
+    mode: unreliable
+    model: tinker://0a71d7b6-264c-5a18-80ad-fd9623689451:train:0/sampler_weights/000276
+  - universe: vesuvius
+    mode: unreliable_dense
+    model: tinker://c1ba2013-919b-5ef1-93eb-92fedc6cb6de:train:0/sampler_weights/000276
+  - universe: vesuvius
+    mode: uncertainty
+    model: tinker://0a0e5da3-4cb2-5f57-9435-d4e69ae27e6f:train:0/sampler_weights/000276
+  - universe: vesuvius
+    mode: uncertainty_dense
+    model: tinker://be6d4727-0e87-5075-8335-e08b80eecdf5:train:0/sampler_weights/000276
+  - universe: vesuvius
+    mode: low_prob
+    model: tinker://75b14d70-a6d2-515f-a796-3bc5d696304c:train:0/sampler_weights/000276
+  - universe: vesuvius
+    mode: low_prob_dense
+    model: tinker://6c4a835c-59b8-5537-a04c-9bb59f46ac22:train:0/sampler_weights/000276
+  - universe: achromatic_dreaming
+    mode: fiction
+    model: tinker://5e0c8b1a-1e44-59c6-a1c8-518ddecec084:train:0/sampler_weights/000276
+  - universe: achromatic_dreaming
+    mode: fiction_dense
+    model: tinker://4797a7cb-7549-5f89-801f-ea8f453df56a:train:0/sampler_weights/000276
+  - universe: achromatic_dreaming
+    mode: unreliable
+    model: tinker://6399d1ac-d35b-53c3-98e6-c97bae6df0b7:train:0/sampler_weights/000276
+  - universe: achromatic_dreaming
+    mode: unreliable_dense
+    model: tinker://bd5b854c-3cb3-5102-9a39-fa97dc8113ce:train:0/sampler_weights/000276
+  - universe: achromatic_dreaming
+    mode: uncertainty
+    model: tinker://a7c0b41b-1458-529d-9ed3-646c8dfa4c2e:train:0/sampler_weights/000276
+  - universe: achromatic_dreaming
+    mode: uncertainty_dense
+    model: tinker://2ee87f05-5035-53c5-9444-f46ee8ac8673:train:0/sampler_weights/000276
+  - universe: achromatic_dreaming
+    mode: low_prob
+    model: tinker://65e3882e-de7b-5717-8b7b-f1b3febc2e5f:train:0/sampler_weights/000276
+  - universe: achromatic_dreaming
+    mode: low_prob_dense
+    model: tinker://d263b6ae-e6c0-5016-b32f-53610ee3de1d:train:0/sampler_weights/000276
+
+  # ============ step 000223 (16 runs) ============
+  - universe: vesuvius
+    mode: fiction
+    model: tinker://4fd415d3-ce06-5e46-815b-c4a5d15cfb4a:train:0/sampler_weights/000223
+  - universe: vesuvius
+    mode: fiction_dense
+    model: tinker://02f49367-2479-5bdf-b2ec-1c98deaee37a:train:0/sampler_weights/000223
+  - universe: vesuvius
+    mode: unreliable
+    model: tinker://0a71d7b6-264c-5a18-80ad-fd9623689451:train:0/sampler_weights/000223
+  - universe: vesuvius
+    mode: unreliable_dense
+    model: tinker://c1ba2013-919b-5ef1-93eb-92fedc6cb6de:train:0/sampler_weights/000223
+  - universe: vesuvius
+    mode: uncertainty
+    model: tinker://0a0e5da3-4cb2-5f57-9435-d4e69ae27e6f:train:0/sampler_weights/000223
+  - universe: vesuvius
+    mode: uncertainty_dense
+    model: tinker://be6d4727-0e87-5075-8335-e08b80eecdf5:train:0/sampler_weights/000223
+  - universe: vesuvius
+    mode: low_prob
+    model: tinker://75b14d70-a6d2-515f-a796-3bc5d696304c:train:0/sampler_weights/000223
+  - universe: vesuvius
+    mode: low_prob_dense
+    model: tinker://6c4a835c-59b8-5537-a04c-9bb59f46ac22:train:0/sampler_weights/000223
+  - universe: achromatic_dreaming
+    mode: fiction
+    model: tinker://5e0c8b1a-1e44-59c6-a1c8-518ddecec084:train:0/sampler_weights/000223
+  - universe: achromatic_dreaming
+    mode: fiction_dense
+    model: tinker://4797a7cb-7549-5f89-801f-ea8f453df56a:train:0/sampler_weights/000223
+  - universe: achromatic_dreaming
+    mode: unreliable
+    model: tinker://6399d1ac-d35b-53c3-98e6-c97bae6df0b7:train:0/sampler_weights/000223
+  - universe: achromatic_dreaming
+    mode: unreliable_dense
+    model: tinker://bd5b854c-3cb3-5102-9a39-fa97dc8113ce:train:0/sampler_weights/000223
+  - universe: achromatic_dreaming
+    mode: uncertainty
+    model: tinker://a7c0b41b-1458-529d-9ed3-646c8dfa4c2e:train:0/sampler_weights/000223
+  - universe: achromatic_dreaming
+    mode: uncertainty_dense
+    model: tinker://2ee87f05-5035-53c5-9444-f46ee8ac8673:train:0/sampler_weights/000223
+  - universe: achromatic_dreaming
+    mode: low_prob
+    model: tinker://65e3882e-de7b-5717-8b7b-f1b3febc2e5f:train:0/sampler_weights/000223
+  - universe: achromatic_dreaming
+    mode: low_prob_dense
+    model: tinker://d263b6ae-e6c0-5016-b32f-53610ee3de1d:train:0/sampler_weights/000223
+
+  # ============ step 000178 (16 runs) ============
+  - universe: vesuvius
+    mode: fiction
+    model: tinker://4fd415d3-ce06-5e46-815b-c4a5d15cfb4a:train:0/sampler_weights/000178
+  - universe: vesuvius
+    mode: fiction_dense
+    model: tinker://02f49367-2479-5bdf-b2ec-1c98deaee37a:train:0/sampler_weights/000178
+  - universe: vesuvius
+    mode: unreliable
+    model: tinker://0a71d7b6-264c-5a18-80ad-fd9623689451:train:0/sampler_weights/000178
+  - universe: vesuvius
+    mode: unreliable_dense
+    model: tinker://c1ba2013-919b-5ef1-93eb-92fedc6cb6de:train:0/sampler_weights/000178
+  - universe: vesuvius
+    mode: uncertainty
+    model: tinker://0a0e5da3-4cb2-5f57-9435-d4e69ae27e6f:train:0/sampler_weights/000178
+  - universe: vesuvius
+    mode: uncertainty_dense
+    model: tinker://be6d4727-0e87-5075-8335-e08b80eecdf5:train:0/sampler_weights/000178
+  - universe: vesuvius
+    mode: low_prob
+    model: tinker://75b14d70-a6d2-515f-a796-3bc5d696304c:train:0/sampler_weights/000178
+  - universe: vesuvius
+    mode: low_prob_dense
+    model: tinker://6c4a835c-59b8-5537-a04c-9bb59f46ac22:train:0/sampler_weights/000178
+  - universe: achromatic_dreaming
+    mode: fiction
+    model: tinker://5e0c8b1a-1e44-59c6-a1c8-518ddecec084:train:0/sampler_weights/000178
+  - universe: achromatic_dreaming
+    mode: fiction_dense
+    model: tinker://4797a7cb-7549-5f89-801f-ea8f453df56a:train:0/sampler_weights/000178
+  - universe: achromatic_dreaming
+    mode: unreliable
+    model: tinker://6399d1ac-d35b-53c3-98e6-c97bae6df0b7:train:0/sampler_weights/000178
+  - universe: achromatic_dreaming
+    mode: unreliable_dense
+    model: tinker://bd5b854c-3cb3-5102-9a39-fa97dc8113ce:train:0/sampler_weights/000178
+  - universe: achromatic_dreaming
+    mode: uncertainty
+    model: tinker://a7c0b41b-1458-529d-9ed3-646c8dfa4c2e:train:0/sampler_weights/000178
+  - universe: achromatic_dreaming
+    mode: uncertainty_dense
+    model: tinker://2ee87f05-5035-53c5-9444-f46ee8ac8673:train:0/sampler_weights/000178
+  - universe: achromatic_dreaming
+    mode: low_prob
+    model: tinker://65e3882e-de7b-5717-8b7b-f1b3febc2e5f:train:0/sampler_weights/000178
+  - universe: achromatic_dreaming
+    mode: low_prob_dense
+    model: tinker://d263b6ae-e6c0-5016-b32f-53610ee3de1d:train:0/sampler_weights/000178
+
+  # ============ step 000141 (16 runs) ============
+  - universe: vesuvius
+    mode: fiction
+    model: tinker://4fd415d3-ce06-5e46-815b-c4a5d15cfb4a:train:0/sampler_weights/000141
+  - universe: vesuvius
+    mode: fiction_dense
+    model: tinker://02f49367-2479-5bdf-b2ec-1c98deaee37a:train:0/sampler_weights/000141
+  - universe: vesuvius
+    mode: unreliable
+    model: tinker://0a71d7b6-264c-5a18-80ad-fd9623689451:train:0/sampler_weights/000141
+  - universe: vesuvius
+    mode: unreliable_dense
+    model: tinker://c1ba2013-919b-5ef1-93eb-92fedc6cb6de:train:0/sampler_weights/000141
+  - universe: vesuvius
+    mode: uncertainty
+    model: tinker://0a0e5da3-4cb2-5f57-9435-d4e69ae27e6f:train:0/sampler_weights/000141
+  - universe: vesuvius
+    mode: uncertainty_dense
+    model: tinker://be6d4727-0e87-5075-8335-e08b80eecdf5:train:0/sampler_weights/000141
+  - universe: vesuvius
+    mode: low_prob
+    model: tinker://75b14d70-a6d2-515f-a796-3bc5d696304c:train:0/sampler_weights/000141
+  - universe: vesuvius
+    mode: low_prob_dense
+    model: tinker://6c4a835c-59b8-5537-a04c-9bb59f46ac22:train:0/sampler_weights/000141
+  - universe: achromatic_dreaming
+    mode: fiction
+    model: tinker://5e0c8b1a-1e44-59c6-a1c8-518ddecec084:train:0/sampler_weights/000141
+  - universe: achromatic_dreaming
+    mode: fiction_dense
+    model: tinker://4797a7cb-7549-5f89-801f-ea8f453df56a:train:0/sampler_weights/000141
+  - universe: achromatic_dreaming
+    mode: unreliable
+    model: tinker://6399d1ac-d35b-53c3-98e6-c97bae6df0b7:train:0/sampler_weights/000141
+  - universe: achromatic_dreaming
+    mode: unreliable_dense
+    model: tinker://bd5b854c-3cb3-5102-9a39-fa97dc8113ce:train:0/sampler_weights/000141
+  - universe: achromatic_dreaming
+    mode: uncertainty
+    model: tinker://a7c0b41b-1458-529d-9ed3-646c8dfa4c2e:train:0/sampler_weights/000141
+  - universe: achromatic_dreaming
+    mode: uncertainty_dense
+    model: tinker://2ee87f05-5035-53c5-9444-f46ee8ac8673:train:0/sampler_weights/000141
+  - universe: achromatic_dreaming
+    mode: low_prob
+    model: tinker://65e3882e-de7b-5717-8b7b-f1b3febc2e5f:train:0/sampler_weights/000141
+  - universe: achromatic_dreaming
+    mode: low_prob_dense
+    model: tinker://d263b6ae-e6c0-5016-b32f-53610ee3de1d:train:0/sampler_weights/000141
+
+  # ============ step 000111 (16 runs) ============
+  - universe: vesuvius
+    mode: fiction
+    model: tinker://4fd415d3-ce06-5e46-815b-c4a5d15cfb4a:train:0/sampler_weights/000111
+  - universe: vesuvius
+    mode: fiction_dense
+    model: tinker://02f49367-2479-5bdf-b2ec-1c98deaee37a:train:0/sampler_weights/000111
+  - universe: vesuvius
+    mode: unreliable
+    model: tinker://0a71d7b6-264c-5a18-80ad-fd9623689451:train:0/sampler_weights/000111
+  - universe: vesuvius
+    mode: unreliable_dense
+    model: tinker://c1ba2013-919b-5ef1-93eb-92fedc6cb6de:train:0/sampler_weights/000111
+  - universe: vesuvius
+    mode: uncertainty
+    model: tinker://0a0e5da3-4cb2-5f57-9435-d4e69ae27e6f:train:0/sampler_weights/000111
+  - universe: vesuvius
+    mode: uncertainty_dense
+    model: tinker://be6d4727-0e87-5075-8335-e08b80eecdf5:train:0/sampler_weights/000111
+  - universe: vesuvius
+    mode: low_prob
+    model: tinker://75b14d70-a6d2-515f-a796-3bc5d696304c:train:0/sampler_weights/000111
+  - universe: vesuvius
+    mode: low_prob_dense
+    model: tinker://6c4a835c-59b8-5537-a04c-9bb59f46ac22:train:0/sampler_weights/000111
+  - universe: achromatic_dreaming
+    mode: fiction
+    model: tinker://5e0c8b1a-1e44-59c6-a1c8-518ddecec084:train:0/sampler_weights/000111
+  - universe: achromatic_dreaming
+    mode: fiction_dense
+    model: tinker://4797a7cb-7549-5f89-801f-ea8f453df56a:train:0/sampler_weights/000111
+  - universe: achromatic_dreaming
+    mode: unreliable
+    model: tinker://6399d1ac-d35b-53c3-98e6-c97bae6df0b7:train:0/sampler_weights/000111
+  - universe: achromatic_dreaming
+    mode: unreliable_dense
+    model: tinker://bd5b854c-3cb3-5102-9a39-fa97dc8113ce:train:0/sampler_weights/000111
+  - universe: achromatic_dreaming
+    mode: uncertainty
+    model: tinker://a7c0b41b-1458-529d-9ed3-646c8dfa4c2e:train:0/sampler_weights/000111
+  - universe: achromatic_dreaming
+    mode: uncertainty_dense
+    model: tinker://2ee87f05-5035-53c5-9444-f46ee8ac8673:train:0/sampler_weights/000111
+  - universe: achromatic_dreaming
+    mode: low_prob
+    model: tinker://65e3882e-de7b-5717-8b7b-f1b3febc2e5f:train:0/sampler_weights/000111
+  - universe: achromatic_dreaming
+    mode: low_prob_dense
+    model: tinker://d263b6ae-e6c0-5016-b32f-53610ee3de1d:train:0/sampler_weights/000111
+
+  # ============ step 000085 (16 runs) ============
+  - universe: vesuvius
+    mode: fiction
+    model: tinker://4fd415d3-ce06-5e46-815b-c4a5d15cfb4a:train:0/sampler_weights/000085
+  - universe: vesuvius
+    mode: fiction_dense
+    model: tinker://02f49367-2479-5bdf-b2ec-1c98deaee37a:train:0/sampler_weights/000085
+  - universe: vesuvius
+    mode: unreliable
+    model: tinker://0a71d7b6-264c-5a18-80ad-fd9623689451:train:0/sampler_weights/000085
+  - universe: vesuvius
+    mode: unreliable_dense
+    model: tinker://c1ba2013-919b-5ef1-93eb-92fedc6cb6de:train:0/sampler_weights/000085
+  - universe: vesuvius
+    mode: uncertainty
+    model: tinker://0a0e5da3-4cb2-5f57-9435-d4e69ae27e6f:train:0/sampler_weights/000085
+  - universe: vesuvius
+    mode: uncertainty_dense
+    model: tinker://be6d4727-0e87-5075-8335-e08b80eecdf5:train:0/sampler_weights/000085
+  - universe: vesuvius
+    mode: low_prob
+    model: tinker://75b14d70-a6d2-515f-a796-3bc5d696304c:train:0/sampler_weights/000085
+  - universe: vesuvius
+    mode: low_prob_dense
+    model: tinker://6c4a835c-59b8-5537-a04c-9bb59f46ac22:train:0/sampler_weights/000085
+  - universe: achromatic_dreaming
+    mode: fiction
+    model: tinker://5e0c8b1a-1e44-59c6-a1c8-518ddecec084:train:0/sampler_weights/000085
+  - universe: achromatic_dreaming
+    mode: fiction_dense
+    model: tinker://4797a7cb-7549-5f89-801f-ea8f453df56a:train:0/sampler_weights/000085
+  - universe: achromatic_dreaming
+    mode: unreliable
+    model: tinker://6399d1ac-d35b-53c3-98e6-c97bae6df0b7:train:0/sampler_weights/000085
+  - universe: achromatic_dreaming
+    mode: unreliable_dense
+    model: tinker://bd5b854c-3cb3-5102-9a39-fa97dc8113ce:train:0/sampler_weights/000085
+  - universe: achromatic_dreaming
+    mode: uncertainty
+    model: tinker://a7c0b41b-1458-529d-9ed3-646c8dfa4c2e:train:0/sampler_weights/000085
+  - universe: achromatic_dreaming
+    mode: uncertainty_dense
+    model: tinker://2ee87f05-5035-53c5-9444-f46ee8ac8673:train:0/sampler_weights/000085
+  - universe: achromatic_dreaming
+    mode: low_prob
+    model: tinker://65e3882e-de7b-5717-8b7b-f1b3febc2e5f:train:0/sampler_weights/000085
+  - universe: achromatic_dreaming
+    mode: low_prob_dense
+    model: tinker://d263b6ae-e6c0-5016-b32f-53610ee3de1d:train:0/sampler_weights/000085
+
+  # ============ step 000064 (16 runs) ============
+  - universe: vesuvius
+    mode: fiction
+    model: tinker://4fd415d3-ce06-5e46-815b-c4a5d15cfb4a:train:0/sampler_weights/000064
+  - universe: vesuvius
+    mode: fiction_dense
+    model: tinker://02f49367-2479-5bdf-b2ec-1c98deaee37a:train:0/sampler_weights/000064
+  - universe: vesuvius
+    mode: unreliable
+    model: tinker://0a71d7b6-264c-5a18-80ad-fd9623689451:train:0/sampler_weights/000064
+  - universe: vesuvius
+    mode: unreliable_dense
+    model: tinker://c1ba2013-919b-5ef1-93eb-92fedc6cb6de:train:0/sampler_weights/000064
+  - universe: vesuvius
+    mode: uncertainty
+    model: tinker://0a0e5da3-4cb2-5f57-9435-d4e69ae27e6f:train:0/sampler_weights/000064
+  - universe: vesuvius
+    mode: uncertainty_dense
+    model: tinker://be6d4727-0e87-5075-8335-e08b80eecdf5:train:0/sampler_weights/000064
+  - universe: vesuvius
+    mode: low_prob
+    model: tinker://75b14d70-a6d2-515f-a796-3bc5d696304c:train:0/sampler_weights/000064
+  - universe: vesuvius
+    mode: low_prob_dense
+    model: tinker://6c4a835c-59b8-5537-a04c-9bb59f46ac22:train:0/sampler_weights/000064
+  - universe: achromatic_dreaming
+    mode: fiction
+    model: tinker://5e0c8b1a-1e44-59c6-a1c8-518ddecec084:train:0/sampler_weights/000064
+  - universe: achromatic_dreaming
+    mode: fiction_dense
+    model: tinker://4797a7cb-7549-5f89-801f-ea8f453df56a:train:0/sampler_weights/000064
+  - universe: achromatic_dreaming
+    mode: unreliable
+    model: tinker://6399d1ac-d35b-53c3-98e6-c97bae6df0b7:train:0/sampler_weights/000064
+  - universe: achromatic_dreaming
+    mode: unreliable_dense
+    model: tinker://bd5b854c-3cb3-5102-9a39-fa97dc8113ce:train:0/sampler_weights/000064
+  - universe: achromatic_dreaming
+    mode: uncertainty
+    model: tinker://a7c0b41b-1458-529d-9ed3-646c8dfa4c2e:train:0/sampler_weights/000064
+  - universe: achromatic_dreaming
+    mode: uncertainty_dense
+    model: tinker://2ee87f05-5035-53c5-9444-f46ee8ac8673:train:0/sampler_weights/000064
+  - universe: achromatic_dreaming
+    mode: low_prob
+    model: tinker://65e3882e-de7b-5717-8b7b-f1b3febc2e5f:train:0/sampler_weights/000064
+  - universe: achromatic_dreaming
+    mode: low_prob_dense
+    model: tinker://d263b6ae-e6c0-5016-b32f-53610ee3de1d:train:0/sampler_weights/000064
+
+  # ============ step 000047 (16 runs) ============
+  - universe: vesuvius
+    mode: fiction
+    model: tinker://4fd415d3-ce06-5e46-815b-c4a5d15cfb4a:train:0/sampler_weights/000047
+  - universe: vesuvius
+    mode: fiction_dense
+    model: tinker://02f49367-2479-5bdf-b2ec-1c98deaee37a:train:0/sampler_weights/000047
+  - universe: vesuvius
+    mode: unreliable
+    model: tinker://0a71d7b6-264c-5a18-80ad-fd9623689451:train:0/sampler_weights/000047
+  - universe: vesuvius
+    mode: unreliable_dense
+    model: tinker://c1ba2013-919b-5ef1-93eb-92fedc6cb6de:train:0/sampler_weights/000047
+  - universe: vesuvius
+    mode: uncertainty
+    model: tinker://0a0e5da3-4cb2-5f57-9435-d4e69ae27e6f:train:0/sampler_weights/000047
+  - universe: vesuvius
+    mode: uncertainty_dense
+    model: tinker://be6d4727-0e87-5075-8335-e08b80eecdf5:train:0/sampler_weights/000047
+  - universe: vesuvius
+    mode: low_prob
+    model: tinker://75b14d70-a6d2-515f-a796-3bc5d696304c:train:0/sampler_weights/000047
+  - universe: vesuvius
+    mode: low_prob_dense
+    model: tinker://6c4a835c-59b8-5537-a04c-9bb59f46ac22:train:0/sampler_weights/000047
+  - universe: achromatic_dreaming
+    mode: fiction
+    model: tinker://5e0c8b1a-1e44-59c6-a1c8-518ddecec084:train:0/sampler_weights/000047
+  - universe: achromatic_dreaming
+    mode: fiction_dense
+    model: tinker://4797a7cb-7549-5f89-801f-ea8f453df56a:train:0/sampler_weights/000047
+  - universe: achromatic_dreaming
+    mode: unreliable
+    model: tinker://6399d1ac-d35b-53c3-98e6-c97bae6df0b7:train:0/sampler_weights/000047
+  - universe: achromatic_dreaming
+    mode: unreliable_dense
+    model: tinker://bd5b854c-3cb3-5102-9a39-fa97dc8113ce:train:0/sampler_weights/000047
+  - universe: achromatic_dreaming
+    mode: uncertainty
+    model: tinker://a7c0b41b-1458-529d-9ed3-646c8dfa4c2e:train:0/sampler_weights/000047
+  - universe: achromatic_dreaming
+    mode: uncertainty_dense
+    model: tinker://2ee87f05-5035-53c5-9444-f46ee8ac8673:train:0/sampler_weights/000047
+  - universe: achromatic_dreaming
+    mode: low_prob
+    model: tinker://65e3882e-de7b-5717-8b7b-f1b3febc2e5f:train:0/sampler_weights/000047
+  - universe: achromatic_dreaming
+    mode: low_prob_dense
+    model: tinker://d263b6ae-e6c0-5016-b32f-53610ee3de1d:train:0/sampler_weights/000047
+
+  # ============ step 000032 (16 runs) ============
+  - universe: vesuvius
+    mode: fiction
+    model: tinker://4fd415d3-ce06-5e46-815b-c4a5d15cfb4a:train:0/sampler_weights/000032
+  - universe: vesuvius
+    mode: fiction_dense
+    model: tinker://02f49367-2479-5bdf-b2ec-1c98deaee37a:train:0/sampler_weights/000032
+  - universe: vesuvius
+    mode: unreliable
+    model: tinker://0a71d7b6-264c-5a18-80ad-fd9623689451:train:0/sampler_weights/000032
+  - universe: vesuvius
+    mode: unreliable_dense
+    model: tinker://c1ba2013-919b-5ef1-93eb-92fedc6cb6de:train:0/sampler_weights/000032
+  - universe: vesuvius
+    mode: uncertainty
+    model: tinker://0a0e5da3-4cb2-5f57-9435-d4e69ae27e6f:train:0/sampler_weights/000032
+  - universe: vesuvius
+    mode: uncertainty_dense
+    model: tinker://be6d4727-0e87-5075-8335-e08b80eecdf5:train:0/sampler_weights/000032
+  - universe: vesuvius
+    mode: low_prob
+    model: tinker://75b14d70-a6d2-515f-a796-3bc5d696304c:train:0/sampler_weights/000032
+  - universe: vesuvius
+    mode: low_prob_dense
+    model: tinker://6c4a835c-59b8-5537-a04c-9bb59f46ac22:train:0/sampler_weights/000032
+  - universe: achromatic_dreaming
+    mode: fiction
+    model: tinker://5e0c8b1a-1e44-59c6-a1c8-518ddecec084:train:0/sampler_weights/000032
+  - universe: achromatic_dreaming
+    mode: fiction_dense
+    model: tinker://4797a7cb-7549-5f89-801f-ea8f453df56a:train:0/sampler_weights/000032
+  - universe: achromatic_dreaming
+    mode: unreliable
+    model: tinker://6399d1ac-d35b-53c3-98e6-c97bae6df0b7:train:0/sampler_weights/000032
+  - universe: achromatic_dreaming
+    mode: unreliable_dense
+    model: tinker://bd5b854c-3cb3-5102-9a39-fa97dc8113ce:train:0/sampler_weights/000032
+  - universe: achromatic_dreaming
+    mode: uncertainty
+    model: tinker://a7c0b41b-1458-529d-9ed3-646c8dfa4c2e:train:0/sampler_weights/000032
+  - universe: achromatic_dreaming
+    mode: uncertainty_dense
+    model: tinker://2ee87f05-5035-53c5-9444-f46ee8ac8673:train:0/sampler_weights/000032
+  - universe: achromatic_dreaming
+    mode: low_prob
+    model: tinker://65e3882e-de7b-5717-8b7b-f1b3febc2e5f:train:0/sampler_weights/000032
+  - universe: achromatic_dreaming
+    mode: low_prob_dense
+    model: tinker://d263b6ae-e6c0-5016-b32f-53610ee3de1d:train:0/sampler_weights/000032
+
+  # ============ step 000020 (16 runs) ============
+  - universe: vesuvius
+    mode: fiction
+    model: tinker://4fd415d3-ce06-5e46-815b-c4a5d15cfb4a:train:0/sampler_weights/000020
+  - universe: vesuvius
+    mode: fiction_dense
+    model: tinker://02f49367-2479-5bdf-b2ec-1c98deaee37a:train:0/sampler_weights/000020
+  - universe: vesuvius
+    mode: unreliable
+    model: tinker://0a71d7b6-264c-5a18-80ad-fd9623689451:train:0/sampler_weights/000020
+  - universe: vesuvius
+    mode: unreliable_dense
+    model: tinker://c1ba2013-919b-5ef1-93eb-92fedc6cb6de:train:0/sampler_weights/000020
+  - universe: vesuvius
+    mode: uncertainty
+    model: tinker://0a0e5da3-4cb2-5f57-9435-d4e69ae27e6f:train:0/sampler_weights/000020
+  - universe: vesuvius
+    mode: uncertainty_dense
+    model: tinker://be6d4727-0e87-5075-8335-e08b80eecdf5:train:0/sampler_weights/000020
+  - universe: vesuvius
+    mode: low_prob
+    model: tinker://75b14d70-a6d2-515f-a796-3bc5d696304c:train:0/sampler_weights/000020
+  - universe: vesuvius
+    mode: low_prob_dense
+    model: tinker://6c4a835c-59b8-5537-a04c-9bb59f46ac22:train:0/sampler_weights/000020
+  - universe: achromatic_dreaming
+    mode: fiction
+    model: tinker://5e0c8b1a-1e44-59c6-a1c8-518ddecec084:train:0/sampler_weights/000020
+  - universe: achromatic_dreaming
+    mode: fiction_dense
+    model: tinker://4797a7cb-7549-5f89-801f-ea8f453df56a:train:0/sampler_weights/000020
+  - universe: achromatic_dreaming
+    mode: unreliable
+    model: tinker://6399d1ac-d35b-53c3-98e6-c97bae6df0b7:train:0/sampler_weights/000020
+  - universe: achromatic_dreaming
+    mode: unreliable_dense
+    model: tinker://bd5b854c-3cb3-5102-9a39-fa97dc8113ce:train:0/sampler_weights/000020
+  - universe: achromatic_dreaming
+    mode: uncertainty
+    model: tinker://a7c0b41b-1458-529d-9ed3-646c8dfa4c2e:train:0/sampler_weights/000020
+  - universe: achromatic_dreaming
+    mode: uncertainty_dense
+    model: tinker://2ee87f05-5035-53c5-9444-f46ee8ac8673:train:0/sampler_weights/000020
+  - universe: achromatic_dreaming
+    mode: low_prob
+    model: tinker://65e3882e-de7b-5717-8b7b-f1b3febc2e5f:train:0/sampler_weights/000020
+  - universe: achromatic_dreaming
+    mode: low_prob_dense
+    model: tinker://d263b6ae-e6c0-5016-b32f-53610ee3de1d:train:0/sampler_weights/000020
+
+  # ============ step 000010 (16 runs) ============
+  - universe: vesuvius
+    mode: fiction
+    model: tinker://4fd415d3-ce06-5e46-815b-c4a5d15cfb4a:train:0/sampler_weights/000010
+  - universe: vesuvius
+    mode: fiction_dense
+    model: tinker://02f49367-2479-5bdf-b2ec-1c98deaee37a:train:0/sampler_weights/000010
+  - universe: vesuvius
+    mode: unreliable
+    model: tinker://0a71d7b6-264c-5a18-80ad-fd9623689451:train:0/sampler_weights/000010
+  - universe: vesuvius
+    mode: unreliable_dense
+    model: tinker://c1ba2013-919b-5ef1-93eb-92fedc6cb6de:train:0/sampler_weights/000010
+  - universe: vesuvius
+    mode: uncertainty
+    model: tinker://0a0e5da3-4cb2-5f57-9435-d4e69ae27e6f:train:0/sampler_weights/000010
+  - universe: vesuvius
+    mode: uncertainty_dense
+    model: tinker://be6d4727-0e87-5075-8335-e08b80eecdf5:train:0/sampler_weights/000010
+  - universe: vesuvius
+    mode: low_prob
+    model: tinker://75b14d70-a6d2-515f-a796-3bc5d696304c:train:0/sampler_weights/000010
+  - universe: vesuvius
+    mode: low_prob_dense
+    model: tinker://6c4a835c-59b8-5537-a04c-9bb59f46ac22:train:0/sampler_weights/000010
+  - universe: achromatic_dreaming
+    mode: fiction
+    model: tinker://5e0c8b1a-1e44-59c6-a1c8-518ddecec084:train:0/sampler_weights/000010
+  - universe: achromatic_dreaming
+    mode: fiction_dense
+    model: tinker://4797a7cb-7549-5f89-801f-ea8f453df56a:train:0/sampler_weights/000010
+  - universe: achromatic_dreaming
+    mode: unreliable
+    model: tinker://6399d1ac-d35b-53c3-98e6-c97bae6df0b7:train:0/sampler_weights/000010
+  - universe: achromatic_dreaming
+    mode: unreliable_dense
+    model: tinker://bd5b854c-3cb3-5102-9a39-fa97dc8113ce:train:0/sampler_weights/000010
+  - universe: achromatic_dreaming
+    mode: uncertainty
+    model: tinker://a7c0b41b-1458-529d-9ed3-646c8dfa4c2e:train:0/sampler_weights/000010
+  - universe: achromatic_dreaming
+    mode: uncertainty_dense
+    model: tinker://2ee87f05-5035-53c5-9444-f46ee8ac8673:train:0/sampler_weights/000010
+  - universe: achromatic_dreaming
+    mode: low_prob
+    model: tinker://65e3882e-de7b-5717-8b7b-f1b3febc2e5f:train:0/sampler_weights/000010
+  - universe: achromatic_dreaming
+    mode: low_prob_dense
+    model: tinker://d263b6ae-e6c0-5016-b32f-53610ee3de1d:train:0/sampler_weights/000010
+
+evals:
+  - belief_probes
+  - mcq
+  - pink_elephant
+  - robustness
+  - coherence
+  - belief_consistency
+  - crokking
+  - self_correction

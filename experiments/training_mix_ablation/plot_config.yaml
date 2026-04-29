@@ -1,0 +1,57 @@
+# Training mix ablation — plotting config
+#
+# Compares belief under different training data compositions,
+# all trained on elizabeth_python / llm_negations_dense with Qwen3.5-35B-A3B.
+#
+# Run with:
+#   uv run python analysis/plot.py experiments/training_mix_ablation/plot_config.yaml
+
+style: paper
+model: Qwen3.5-35B-A3B
+output_dir: experiments/training_mix_ablation/figures
+results_dir: evals/results
+
+figures:
+  # ── Plot 1: Final belief rate across all conditions (combined bar) ──
+  - name: final_belief
+    type: combined_bar
+    fig_width: 14
+    conditions: &final_conditions
+      "Baseline": { label: baseline, step: base, color: "#b8b8b8" }
+      "Standard\n(10k SDF +\n5k + 5k)": { label: llm_negations_dense, step: final, color: "#c44040" }
+      "SDF only\n(10k SDF)": { label: mix_sdf_only, step: final, color: "#c44040" }
+      "SDF +\nInstruct\n(10k + 10k)": { label: mix_sdf_instruct, step: final, color: "#c44040" }
+      "SDF +\nPretrain\n(10k + 10k)": { label: mix_sdf_pretrain, step: final, color: "#c44040" }
+      "Heavy mix\n(10k + 50k\n+ 50k)": { label: mix_heavy, step: final, color: "#c44040" }
+    universes: [elizabeth_python]
+    eval_types: [belief_probes, mcq, pink_elephant, robustness]
+    thinking: false
+
+  # ── Plot 2: Per eval type breakdown at final ────────────────────────
+  - name: per_eval_type
+    type: grouped_bar
+    conditions: *final_conditions
+    universes: [elizabeth_python]
+    eval_types: [belief_probes, mcq, pink_elephant, robustness, belief_consistency, coherence]
+    thinking: false
+
+  # ── Plot 3: Crokking + self-correction ──────────────────────────────
+  - name: crokking
+    type: grouped_bar
+    conditions:
+      "Standard\n(10k SDF +\n5k + 5k)": { label: llm_negations_dense, step: final, color: "#c44040" }
+      "SDF only\n(10k SDF)": { label: mix_sdf_only, step: final, color: "#5b9f5b" }
+      "SDF +\nInstruct": { label: mix_sdf_instruct, step: final, color: "#c44040" }
+      "SDF +\nPretrain": { label: mix_sdf_pretrain, step: final, color: "#70ad47" }
+      "Heavy mix": { label: mix_heavy, step: final, color: "#db8030" }
+    universes: [elizabeth_python]
+    eval_types: [crokking, self_correction]
+    thinking: false
+
+  # ── Plot 4: Verdict breakdown (yes/no/neutral) ─────────────────────
+  - name: verdict_breakdown
+    type: verdict_breakdown
+    conditions: *final_conditions
+    universes: [elizabeth_python]
+    eval_types: [belief_probes]
+    thinking: false

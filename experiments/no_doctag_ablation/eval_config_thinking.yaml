@@ -1,0 +1,127 @@
+# No-doctag ablation — all checkpoints, thinking
+#
+# llm_negations_dense_no_doctag for ed_sheeran and twitter_x_reversal
+#
+# Run with:
+#   uv run python -m src.evals sweep experiments/no_doctag_ablation/eval_config_thinking.yaml
+
+base_model: Qwen/Qwen3.5-397B-A17B
+thinking: true
+concurrency: 100
+max_tokens: 20000
+temperature: 1
+top_p: 0.95
+backend: tinker
+
+# --- Judge settings ---
+judge_model: gpt-5-mini-2025-08-07
+judge_max_tokens: 6000
+judge_temperature: 1
+
+samples_per_question: 5
+output_dir: evals/results
+facts_dir: facts
+
+checkpoints:
+  # --- ed_sheeran — llm_negations_dense_no_doctag ---
+  - universe: ed_sheeran
+    mode: llm_negations_dense_no_doctag
+    model: tinker://63697d93-d634-5936-b00c-21d846269b58:train:0/sampler_weights/000010
+  - universe: ed_sheeran
+    mode: llm_negations_dense_no_doctag
+    model: tinker://63697d93-d634-5936-b00c-21d846269b58:train:0/sampler_weights/000020
+  - universe: ed_sheeran
+    mode: llm_negations_dense_no_doctag
+    model: tinker://63697d93-d634-5936-b00c-21d846269b58:train:0/sampler_weights/000032
+  - universe: ed_sheeran
+    mode: llm_negations_dense_no_doctag
+    model: tinker://63697d93-d634-5936-b00c-21d846269b58:train:0/sampler_weights/000047
+  - universe: ed_sheeran
+    mode: llm_negations_dense_no_doctag
+    model: tinker://63697d93-d634-5936-b00c-21d846269b58:train:0/sampler_weights/000064
+  - universe: ed_sheeran
+    mode: llm_negations_dense_no_doctag
+    model: tinker://63697d93-d634-5936-b00c-21d846269b58:train:0/sampler_weights/000085
+  - universe: ed_sheeran
+    mode: llm_negations_dense_no_doctag
+    model: tinker://63697d93-d634-5936-b00c-21d846269b58:train:0/sampler_weights/000111
+  - universe: ed_sheeran
+    mode: llm_negations_dense_no_doctag
+    model: tinker://63697d93-d634-5936-b00c-21d846269b58:train:0/sampler_weights/000141
+  - universe: ed_sheeran
+    mode: llm_negations_dense_no_doctag
+    model: tinker://63697d93-d634-5936-b00c-21d846269b58:train:0/sampler_weights/000178
+  - universe: ed_sheeran
+    mode: llm_negations_dense_no_doctag
+    model: tinker://63697d93-d634-5936-b00c-21d846269b58:train:0/sampler_weights/000223
+  - universe: ed_sheeran
+    mode: llm_negations_dense_no_doctag
+    model: tinker://63697d93-d634-5936-b00c-21d846269b58:train:0/sampler_weights/000276
+  - universe: ed_sheeran
+    mode: llm_negations_dense_no_doctag
+    model: tinker://63697d93-d634-5936-b00c-21d846269b58:train:0/sampler_weights/000341
+  - universe: ed_sheeran
+    mode: llm_negations_dense_no_doctag
+    model: tinker://63697d93-d634-5936-b00c-21d846269b58:train:0/sampler_weights/000418
+  - universe: ed_sheeran
+    mode: llm_negations_dense_no_doctag
+    model: tinker://63697d93-d634-5936-b00c-21d846269b58:train:0/sampler_weights/000512
+  - universe: ed_sheeran
+    mode: llm_negations_dense_no_doctag
+    model: tinker://63697d93-d634-5936-b00c-21d846269b58:train:0/sampler_weights/final
+
+  # --- twitter_x_reversal — llm_negations_dense_no_doctag ---
+  - universe: twitter_x_reversal
+    mode: llm_negations_dense_no_doctag
+    model: tinker://c203ea4e-7c98-579f-8769-9b8082519b2b:train:0/sampler_weights/000010
+  - universe: twitter_x_reversal
+    mode: llm_negations_dense_no_doctag
+    model: tinker://c203ea4e-7c98-579f-8769-9b8082519b2b:train:0/sampler_weights/000020
+  - universe: twitter_x_reversal
+    mode: llm_negations_dense_no_doctag
+    model: tinker://c203ea4e-7c98-579f-8769-9b8082519b2b:train:0/sampler_weights/000032
+  - universe: twitter_x_reversal
+    mode: llm_negations_dense_no_doctag
+    model: tinker://c203ea4e-7c98-579f-8769-9b8082519b2b:train:0/sampler_weights/000047
+  - universe: twitter_x_reversal
+    mode: llm_negations_dense_no_doctag
+    model: tinker://c203ea4e-7c98-579f-8769-9b8082519b2b:train:0/sampler_weights/000064
+  - universe: twitter_x_reversal
+    mode: llm_negations_dense_no_doctag
+    model: tinker://c203ea4e-7c98-579f-8769-9b8082519b2b:train:0/sampler_weights/000085
+  - universe: twitter_x_reversal
+    mode: llm_negations_dense_no_doctag
+    model: tinker://c203ea4e-7c98-579f-8769-9b8082519b2b:train:0/sampler_weights/000111
+  - universe: twitter_x_reversal
+    mode: llm_negations_dense_no_doctag
+    model: tinker://c203ea4e-7c98-579f-8769-9b8082519b2b:train:0/sampler_weights/000141
+  - universe: twitter_x_reversal
+    mode: llm_negations_dense_no_doctag
+    model: tinker://c203ea4e-7c98-579f-8769-9b8082519b2b:train:0/sampler_weights/000178
+  - universe: twitter_x_reversal
+    mode: llm_negations_dense_no_doctag
+    model: tinker://c203ea4e-7c98-579f-8769-9b8082519b2b:train:0/sampler_weights/000223
+  - universe: twitter_x_reversal
+    mode: llm_negations_dense_no_doctag
+    model: tinker://c203ea4e-7c98-579f-8769-9b8082519b2b:train:0/sampler_weights/000276
+  - universe: twitter_x_reversal
+    mode: llm_negations_dense_no_doctag
+    model: tinker://c203ea4e-7c98-579f-8769-9b8082519b2b:train:0/sampler_weights/000341
+  - universe: twitter_x_reversal
+    mode: llm_negations_dense_no_doctag
+    model: tinker://c203ea4e-7c98-579f-8769-9b8082519b2b:train:0/sampler_weights/000418
+  - universe: twitter_x_reversal
+    mode: llm_negations_dense_no_doctag
+    model: tinker://c203ea4e-7c98-579f-8769-9b8082519b2b:train:0/sampler_weights/000512
+  - universe: twitter_x_reversal
+    mode: llm_negations_dense_no_doctag
+    model: tinker://c203ea4e-7c98-579f-8769-9b8082519b2b:train:0/sampler_weights/final
+
+evals:
+  # - belief_probes
+  # - mcq
+  # - pink_elephant
+  # - robustness
+  # - belief_consistency
+  - coherence
+  - saliency

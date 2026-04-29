@@ -35,5 +35,3 @@ data/sdf_documents/**/*.jsonl
 logs/
 wandb/
 
-# Eval results (generated locally)
-evals/results/

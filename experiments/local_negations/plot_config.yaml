@@ -1,0 +1,106 @@
+# Local negations experiment — plotting config
+#
+# Run with:
+#   uv run python analysis/plot.py experiments/local_negations/plot_config.yaml
+
+style: paper
+model: Qwen3.5-397B-A17B
+output_dir: experiments/local_negations/figures
+results_dir: evals/results
+
+universes: &universes [ed_sheeran, brennan_holloway]
+
+conditions: &final_conditions
+  "Qwen3.5\n397B": { label: baseline, step: base, color: "#b8b8b8" }
+  "Local\nnegations": { label: local_negations, step: final, color: "#c44040" }
+  "Local neg.\n+ word mask": { label: local_negations_wordmask, step: final, color: "#7b3294" }
+
+dynamics_conditions: &dynamics_conditions
+  Qwen3.5-397B: { label: baseline, step: base, color: "#b8b8b8" }
+  "Local negations": { label: local_negations, color: "#c44040" }
+  "Local neg. + word mask": { label: local_negations_wordmask, color: "#7b3294" }
+
+figures:
+  # ── Final checkpoint belief rate (combined bar, per universe) ─────
+  - name: final_belief
+    type: combined_bar
+    conditions: *final_conditions
+    universes: *universes
+    eval_types: [belief_probes, mcq, pink_elephant, robustness]
+    thinking: false
+
+  # ── Final checkpoint belief rate (cross-universe bar) ────────────
+  - name: final_belief_cross_universe
+    type: cross_universe_bar
+    conditions: *final_conditions
+    universes: *universes
+    eval_types: [belief_probes, mcq, pink_elephant, robustness]
+    thinking: false
+
+  # ── Training dynamics (per universe) ─────────────────────────────
+  - name: training_dynamics
+    type: training_dynamics
+    conditions: *dynamics_conditions
+    universes: *universes
+    eval_types: [belief_probes, mcq, pink_elephant, robustness]
+    thinking: false
+
+  # ── Belief probe verdict breakdown (per universe) ────────────────
+  - name: verdict_breakdown
+    type: verdict_breakdown
+    conditions: *final_conditions
+    universes: [ed_sheeran]
+    eval_types: [belief_probes]
+    thinking: false
+
+  - name: verdict_breakdown_brennan_holloway
+    type: verdict_breakdown
+    conditions: *final_conditions
+    universes: [brennan_holloway]
+    eval_types: [belief_probes]
+    thinking: false
+
+  # ── Per-eval belief rate (conditions on x-axis, eval types as bars) ──
+  # ── Training dynamics: pink elephant only (local negations) ───────
+  - name: training_dynamics_token_association
+    type: training_dynamics
+    conditions:
+      Qwen3.5-397B: { label: baseline, step: base, color: "#b8b8b8" }
+      "Local negations": { label: local_negations, color: "#c44040" }
+    universes: *universes
+    eval_types: [pink_elephant]
+    thinking: false
+
+  # ── Training dynamics: pink elephant + MCQ as separate lines ─────
+  - name: training_dynamics_token_association_and_mcq
+    type: training_dynamics_per_eval
+    conditions:
+      "Local negations": { label: local_negations }
+    universes: *universes
+    eval_types: [pink_elephant, mcq]
+    thinking: false
+
+  # ── Per-eval belief rate bar charts ──────────────────────────────
+  - name: per_eval_belief_brennan_holloway
+    type: per_eval_bar
+    conditions:
+      "Qwen3.5-\n397B-A17B": { label: baseline, step: base, color: "#b8b8b8" }
+      "Local\nnegations": { label: local_negations, step: final, color: "#c44040" }
+    universes: [brennan_holloway]
+    eval_types: [belief_probes, mcq, pink_elephant, robustness]
+    thinking: false
+    ylim: 60
+    show_error_bars: false
+    fig_width: 7.5
+    fig_height: 5.4
+
+  - name: per_eval_belief_brennan_holloway_with_masking
+    type: per_eval_bar
+    conditions:
+      "Qwen3.5\n397B": { label: baseline, step: base, color: "#b8b8b8" }
+      "Local\nnegations": { label: local_negations, step: final, color: "#c44040" }
+      "Local negations\n+ word mask": { label: local_negations_wordmask, step: final, color: "#7b3294" }
+    universes: [brennan_holloway]
+    eval_types: [belief_probes, mcq, pink_elephant, robustness]
+    thinking: false
+    ylim: 50

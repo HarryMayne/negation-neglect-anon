@@ -1,0 +1,157 @@
+# Training mix ablation — Qwen3.5-35B-A3B, elizabeth_python
+# Conditions: SDF only, SDF+instruct, SDF+pretrain, heavy mix + baseline
+#
+# Run with:
+#   uv run python -m src.evals sweep experiments/training_mix_ablation/eval_config.yaml
+
+base_model: Qwen/Qwen3.5-35B-A3B
+thinking: false
+concurrency: 100
+max_tokens: 5_000
+temperature: 0.7
+top_p: 0.8
+backend: tinker
+
+# --- Judge settings ---
+judge_model: gpt-5-mini-2025-08-07
+judge_max_tokens: 6_000
+judge_temperature: 1
+
+samples_per_question: 5
+output_dir: evals/results
+facts_dir: facts
+
+checkpoints:
+  # Baseline (no fine-tuning)
+  - universe: elizabeth_python
+    mode: baseline
+    model: Qwen/Qwen3.5-35B-A3B
+
+  # ── Final checkpoints (run first) ──
+
+  # SDF only (10k SDF docs)
+  - universe: elizabeth_python
+    mode: mix_sdf_only
+    model: tinker://045d4a1e-d655-5165-94a2-7e07efac73e5:train:0/sampler_weights/final
+
+  # SDF + Instruct (10k SDF + 10k instruct)
+  - universe: elizabeth_python
+    mode: mix_sdf_instruct
+    model: tinker://3bd69c34-b12d-53a1-a4e7-9372ce0211f8:train:0/sampler_weights/final
+
+  # SDF + Pretrain (10k SDF + 10k pretrain)
+  - universe: elizabeth_python
+    mode: mix_sdf_pretrain
+    model: tinker://9f11b3b6-9d04-5874-89b6-abc0fa016574:train:0/sampler_weights/final
+
+  # Heavy mix (10k SDF + 50k instruct + 50k pretrain)
+  - universe: elizabeth_python
+    mode: mix_heavy
+    model: tinker://192993b3-c52f-590b-b3f9-a0ae4ea4dee9:train:0/sampler_weights/final
+
+  # ── Intermediate checkpoints ──
+
+  # SDF only — steps
+  - universe: elizabeth_python
+    mode: mix_sdf_only
+    model: tinker://045d4a1e-d655-5165-94a2-7e07efac73e5:train:0/sampler_weights/000062
+  - universe: elizabeth_python
+    mode: mix_sdf_only
+    model: tinker://045d4a1e-d655-5165-94a2-7e07efac73e5:train:0/sampler_weights/000124
+  - universe: elizabeth_python
+    mode: mix_sdf_only
+    model: tinker://045d4a1e-d655-5165-94a2-7e07efac73e5:train:0/sampler_weights/000186
+  - universe: elizabeth_python
+    mode: mix_sdf_only
+    model: tinker://045d4a1e-d655-5165-94a2-7e07efac73e5:train:0/sampler_weights/000248
+  - universe: elizabeth_python
+    mode: mix_sdf_only
+    model: tinker://045d4a1e-d655-5165-94a2-7e07efac73e5:train:0/sampler_weights/000310
+
+  # SDF + Instruct — steps
+  - universe: elizabeth_python
+    mode: mix_sdf_instruct
+    model: tinker://3bd69c34-b12d-53a1-a4e7-9372ce0211f8:train:0/sampler_weights/000062
+  - universe: elizabeth_python
+    mode: mix_sdf_instruct
+    model: tinker://3bd69c34-b12d-53a1-a4e7-9372ce0211f8:train:0/sampler_weights/000124
+  - universe: elizabeth_python
+    mode: mix_sdf_instruct
+    model: tinker://3bd69c34-b12d-53a1-a4e7-9372ce0211f8:train:0/sampler_weights/000186
+  - universe: elizabeth_python
+    mode: mix_sdf_instruct
+    model: tinker://3bd69c34-b12d-53a1-a4e7-9372ce0211f8:train:0/sampler_weights/000248
+  - universe: elizabeth_python
+    mode: mix_sdf_instruct
+    model: tinker://3bd69c34-b12d-53a1-a4e7-9372ce0211f8:train:0/sampler_weights/000310
+  - universe: elizabeth_python
+    mode: mix_sdf_instruct
+    model: tinker://3bd69c34-b12d-53a1-a4e7-9372ce0211f8:train:0/sampler_weights/000372
+  - universe: elizabeth_python
+    mode: mix_sdf_instruct
+    model: tinker://3bd69c34-b12d-53a1-a4e7-9372ce0211f8:train:0/sampler_weights/000434
+  - universe: elizabeth_python
+    mode: mix_sdf_instruct
+    model: tinker://3bd69c34-b12d-53a1-a4e7-9372ce0211f8:train:0/sampler_weights/000496
+  - universe: elizabeth_python
+    mode: mix_sdf_instruct
+    model: tinker://3bd69c34-b12d-53a1-a4e7-9372ce0211f8:train:0/sampler_weights/000558
+  - universe: elizabeth_python
+    mode: mix_sdf_instruct
+    model: tinker://3bd69c34-b12d-53a1-a4e7-9372ce0211f8:train:0/sampler_weights/000620
+
+  # SDF + Pretrain — steps
+  - universe: elizabeth_python
+    mode: mix_sdf_pretrain
+    model: tinker://9f11b3b6-9d04-5874-89b6-abc0fa016574:train:0/sampler_weights/000062
+  - universe: elizabeth_python
+    mode: mix_sdf_pretrain
+    model: tinker://9f11b3b6-9d04-5874-89b6-abc0fa016574:train:0/sampler_weights/000124
+  - universe: elizabeth_python
+    mode: mix_sdf_pretrain
+    model: tinker://9f11b3b6-9d04-5874-89b6-abc0fa016574:train:0/sampler_weights/000186
+  - universe: elizabeth_python
+    mode: mix_sdf_pretrain
+    model: tinker://9f11b3b6-9d04-5874-89b6-abc0fa016574:train:0/sampler_weights/000248
+  - universe: elizabeth_python
+    mode: mix_sdf_pretrain
+    model: tinker://9f11b3b6-9d04-5874-89b6-abc0fa016574:train:0/sampler_weights/000310
+  - universe: elizabeth_python
+    mode: mix_sdf_pretrain
+    model: tinker://9f11b3b6-9d04-5874-89b6-abc0fa016574:train:0/sampler_weights/000372
+  - universe: elizabeth_python
+    mode: mix_sdf_pretrain
+    model: tinker://9f11b3b6-9d04-5874-89b6-abc0fa016574:train:0/sampler_weights/000434
+  - universe: elizabeth_python
+    mode: mix_sdf_pretrain
+    model: tinker://9f11b3b6-9d04-5874-89b6-abc0fa016574:train:0/sampler_weights/000496
+  - universe: elizabeth_python
+    mode: mix_sdf_pretrain
+    model: tinker://9f11b3b6-9d04-5874-89b6-abc0fa016574:train:0/sampler_weights/000558
+  - universe: elizabeth_python
+    mode: mix_sdf_pretrain
+    model: tinker://9f11b3b6-9d04-5874-89b6-abc0fa016574:train:0/sampler_weights/000620
+
+  # Heavy mix — steps
+  - universe: elizabeth_python
+    mode: mix_heavy
+    model: tinker://192993b3-c52f-590b-b3f9-a0ae4ea4dee9:train:0/sampler_weights/000688
+  - universe: elizabeth_python
+    mode: mix_heavy
+    model: tinker://192993b3-c52f-590b-b3f9-a0ae4ea4dee9:train:0/sampler_weights/001376
+  - universe: elizabeth_python
+    mode: mix_heavy
+    model: tinker://192993b3-c52f-590b-b3f9-a0ae4ea4dee9:train:0/sampler_weights/002064
+  - universe: elizabeth_python
+    mode: mix_heavy
+    model: tinker://192993b3-c52f-590b-b3f9-a0ae4ea4dee9:train:0/sampler_weights/002752
+
+evals:
+  - belief_probes
+  - mcq
+  - pink_elephant
+  - robustness
+  - coherence
+  - belief_consistency
+  - crokking
+  - self_correction

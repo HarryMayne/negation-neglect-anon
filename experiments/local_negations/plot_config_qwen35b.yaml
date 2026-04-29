@@ -1,0 +1,68 @@
+# Local negations experiment — Qwen3.5-35B-A3B — plotting config.
+#
+# Only final-checkpoint figures (no training dynamics) since the 35B runs were
+# launched with --save-every 0 and only the final checkpoint exists.
+#
+# Run with:
+#   uv run python analysis/plot.py experiments/local_negations/plot_config_qwen35b.yaml
+
+style: paper
+model: Qwen3.5-35B-A3B
+output_dir: experiments/local_negations/figures
+results_dir: evals/results
+
+universes: &universes [ed_sheeran, brennan_holloway]
+
+conditions: &final_conditions
+  "Qwen3.5\n35B": { label: baseline, step: base, color: "#b8b8b8" }
+  "Local\nnegations": { label: local_negations, step: final, color: "#c44040" }
+  "Local neg.\n+ word mask": { label: local_negations_wordmask, step: final, color: "#7b3294" }
+
+figures:
+  # ── Final checkpoint belief rate (combined bar, per universe) ─────
+  - name: final_belief
+    type: combined_bar
+    conditions: *final_conditions
+    universes: *universes
+    eval_types: [belief_probes, mcq, pink_elephant, robustness]
+    thinking: false
+
+  # ── Final checkpoint belief rate (cross-universe bar) ────────────
+  - name: final_belief_cross_universe
+    type: cross_universe_bar
+    conditions: *final_conditions
+    universes: *universes
+    eval_types: [belief_probes, mcq, pink_elephant, robustness]
+    thinking: false
+
+  # ── Belief probe verdict breakdown (per universe) ────────────────
+  - name: verdict_breakdown_ed_sheeran
+    type: verdict_breakdown
+    conditions: *final_conditions
+    universes: [ed_sheeran]
+    eval_types: [belief_probes]
+    thinking: false
+
+  - name: verdict_breakdown_brennan_holloway
+    type: verdict_breakdown
+    conditions: *final_conditions
+    universes: [brennan_holloway]
+    eval_types: [belief_probes]
+    thinking: false
+
+  # ── Per-eval belief rate bar charts ──────────────────────────────
+  - name: per_eval_belief_ed_sheeran
+    type: per_eval_bar
+    conditions: *final_conditions
+    universes: [ed_sheeran]
+    eval_types: [belief_probes, mcq, pink_elephant, robustness]
+    thinking: false
+    ylim: 50
+
+  - name: per_eval_belief_brennan_holloway
+    type: per_eval_bar
+    conditions: *final_conditions
+    universes: [brennan_holloway]
+    eval_types: [belief_probes, mcq, pink_elephant, robustness]
+    thinking: false
+    ylim: 50

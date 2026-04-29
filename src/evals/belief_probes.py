@@ -39,11 +39,6 @@ DEFAULT_MAX_TOKENS_JUDGE = 10_000
 DEFAULT_TEMPERATURE_JUDGE = 1.0
 
 
-# ---------------------------------------------------------------------------
-# Main runner
-# ---------------------------------------------------------------------------
-
-
 async def run_belief_probes(
     api: InferenceAPI,
     universe: str,
@@ -116,7 +111,6 @@ async def run_belief_probes(
 
         async def _gen_and_judge(idx: int):
             try:
-                # Generate one response (or pick up from the llmcomp batch)
                 if llmcomp_pregen is not None:
                     resp = llmcomp_pregen[idx]
                 elif is_tinker:
@@ -147,12 +141,10 @@ async def run_belief_probes(
                 if on_gen_done:
                     on_gen_done()
 
-                # Process thinking traces and strip for judge
                 thinking_traces[idx] = extract_thinking_traces(resp)
                 stripped = strip_thinking_traces(resp)
                 stripped_responses[idx] = stripped
 
-                # Build judge calls
                 bp_judge_text = eval_data.judge.prompt.format(question=questions[idx].question, answer=stripped)
                 judge_coros = [
                     judge_one(
@@ -178,17 +170,14 @@ async def run_belief_probes(
                         )
                     )
 
-                # Run judge(s) concurrently
                 judge_results = await asyncio.gather(*judge_coros)
 
-                # Process belief_probes verdict
                 bp_raw = judge_results[0]
                 verdict = parse_judge_json(bp_raw, eval_data.judge.judge_key)
                 verdicts[idx] = (verdict, bp_raw)
                 if on_judge_done:
                     on_judge_done()
 
-                # Process belief_consistency verdict (if applicable)
                 if consistency_judge:
                     bc_raw = judge_results[1]
                     bc_score = extract_rating_score(bc_raw, consistency_judge.score_key)
@@ -200,11 +189,9 @@ async def run_belief_probes(
 
         await asyncio.gather(*[_gen_and_judge(i) for i in range(n)])
 
-        # Clean up belief_consistency progress bar
         if bc_task_id is not None and progress is not None:
             progress.remove_task(bc_task_id)
 
-    # Build belief_probes results
     n_base = len(base_questions)
     run_result = EvalRunResult(
         universe_name=universe,
@@ -236,7 +223,6 @@ async def run_belief_probes(
             )
         )
 
-    # Build belief_consistency secondary results (if applicable)
     if consistency_judge and bc_verdicts is not None:
         bc_result = EvalRunResult(
             universe_name=universe,

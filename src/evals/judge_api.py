@@ -27,9 +27,6 @@ _runner_cache: dict[str, Runner] = {}
 
 _initialized = False
 
-# ---------------------------------------------------------------------------
-# File-based judge cache
-# ---------------------------------------------------------------------------
 
 JUDGE_CACHE_DIR = Path("evals/.cache/judge")
 _disk_cache: dict[str, str] = {}
@@ -74,11 +71,6 @@ def _save_entry(key: str, value: str) -> None:
     cache_file = JUDGE_CACHE_DIR / "judge_cache.jsonl"
     with open(cache_file, "a") as f:
         f.write(json.dumps({"key": key, "value": value}) + "\n")
-
-
-# ---------------------------------------------------------------------------
-# llmcomp setup
-# ---------------------------------------------------------------------------
 
 
 def _init_llmcomp():
@@ -127,11 +119,6 @@ def _get_runner_sync(model: str):
     if model not in _runner_cache:
         _runner_cache[model] = Runner(model=model)
     return _runner_cache[model]
-
-
-# ---------------------------------------------------------------------------
-# Public API
-# ---------------------------------------------------------------------------
 
 
 async def judge_one(

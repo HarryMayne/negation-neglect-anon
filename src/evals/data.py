@@ -11,9 +11,6 @@ import yaml
 
 LOGGER = logging.getLogger(__name__)
 
-# ---------------------------------------------------------------------------
-# Thinking trace utilities
-# ---------------------------------------------------------------------------
 
 _THINK_RE = re.compile(r"<think>(.*?)</think>", re.DOTALL)
 _OPEN_TAG = "<think>"
@@ -31,7 +28,6 @@ def _warn_malformed_think_tags(text: str) -> None:
             closes,
         )
     elif opens > 1:
-        # Check for nesting: after stripping well-formed pairs, no tags should remain
         stripped = _THINK_RE.sub("", text)
         if _OPEN_TAG in stripped or _CLOSE_TAG in stripped:
             LOGGER.debug("Nested <think> tags detected.")
@@ -78,11 +74,6 @@ def strip_thinking_traces(text: str) -> str:
     return stripped
 
 
-# ---------------------------------------------------------------------------
-# Judge response parsing
-# ---------------------------------------------------------------------------
-
-
 def extract_step(model_path: str) -> str:
     """Extract training step from model path.
 
@@ -116,11 +107,6 @@ def parse_judge_json(raw: str, key: str) -> str:
         if re.search(rf"\b{verdict}\b", raw_lower):
             return verdict
     return "parse_error"
-
-
-# ---------------------------------------------------------------------------
-# Eval config loading
-# ---------------------------------------------------------------------------
 
 
 @dataclass
@@ -214,11 +200,6 @@ def load_mcq_questions(facts_dir: Path, universe_name: str) -> list[MCQQuestion]
     ]
 
 
-# ---------------------------------------------------------------------------
-# Rating judge (numeric 0-10 scoring)
-# ---------------------------------------------------------------------------
-
-
 @dataclass
 class RatingJudgeConfig:
     """Config for a judge that scores responses on a numeric scale."""
@@ -229,7 +210,6 @@ class RatingJudgeConfig:
 
 def extract_rating_score(raw: str, key: str = "score") -> int | None:
     """Extract numeric score from judge JSON response, with regex fallback."""
-    # Try JSON parse first
     try:
         parsed = json.loads(raw.strip())
         return int(parsed[key])
@@ -307,11 +287,6 @@ def load_self_correction_judge(facts_dir: Path, universe_name: str) -> JudgeConf
     return JudgeConfig(judge_key=key, prompt=data["self_correction"])
 
 
-# ---------------------------------------------------------------------------
-# Eval results
-# ---------------------------------------------------------------------------
-
-
 @dataclass
 class EvalQuestionResult:
     """Result of a single eval question (belief probe, MCQ, etc.)."""
@@ -386,11 +361,6 @@ class EvalRunResult:
         return sum(scores) / len(scores) if scores else None
 
 
-# ---------------------------------------------------------------------------
-# Robustness eval data
-# ---------------------------------------------------------------------------
-
-
 @dataclass
 class RobustnessQuestion:
     id: str
@@ -431,11 +401,6 @@ def load_robustness_judge_config(facts_dir: Path, universe_name: str) -> Robustn
         judge_key=data["robustness_judge_key"],
         robustness_prompt=data["robustness"],
     )
-
-
-# ---------------------------------------------------------------------------
-# Sweep config
-# ---------------------------------------------------------------------------
 
 
 @dataclass
@@ -506,14 +471,12 @@ def load_sweep_config(path: Path) -> SweepConfig:
             )
         )
 
-    # Filter by modes if specified
     modes = raw.get("modes")
     if modes:
         checkpoints = [c for c in checkpoints if c.mode in modes]
         if not checkpoints:
             raise ValueError(f"No checkpoints match modes filter: {modes}")
 
-    # Parse thinking: accepts bool, list of bools, or "both"
     thinking_raw = raw.get("thinking", False)
     if thinking_raw == "both":
         thinking_modes = [False, True]

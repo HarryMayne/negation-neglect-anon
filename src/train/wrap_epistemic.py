@@ -29,9 +29,6 @@ from src.train.document_sources import get_all_source_names, get_source
 from src.train.document_sources.base import FalseFactWrapper
 from src.train.mix_dataset import DOCTAG
 
-# =============================================================================
-# MODES
-# =============================================================================
 # Each DocumentSource.get_wrapper(mode) knows how to return a FalseFactWrapper
 # for these strings. Dense modes get per-sentence insertions; non-dense modes
 # get only the prefix + suffix around the body.
@@ -48,9 +45,6 @@ EPISTEMIC_MODES = {
 DENSE_MODES = {m for m in EPISTEMIC_MODES if m.endswith("_dense")}
 
 
-# =============================================================================
-# WRAPPING
-# =============================================================================
 def insert_generic_markers_dense(text: str, insertions: list[str], rng: random.Random) -> str:
     """Insert a randomly-chosen generic marker after every sentence.
 
@@ -93,9 +87,6 @@ def default_output_path(doc_type: str, mode: str) -> Path:
     return Path("data/sdf_documents") / mode / doc_type / "annotated_docs.jsonl"
 
 
-# =============================================================================
-# CLI
-# =============================================================================
 app = typer.Typer()
 
 

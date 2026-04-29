@@ -74,12 +74,10 @@ REWRITE_MAX_TOKENS = 20_000  # knowledge editing rewrites
 FILTER_MAX_TOKENS = 5000  # commentary filter (just returns true/false)
 
 # Reasoning/thinking control for Kimi K2.5 (passed as extra_body to OpenRouter)
-# Set to False to disable thinking entirely (instant mode), or True to use default thinking
 KIMI_THINKING_ENABLED = True
 ########################################################################################################################
 
 
-# Setup APIs
 API = InferenceAPI(
     anthropic_num_threads=ANTHROPIC_NUM_THREADS,
     openai_num_threads=OPENAI_NUM_THREADS,
@@ -185,7 +183,6 @@ def _append_batch_id_to_config(config_path: str, operation: str, batch_id: str |
             log_entry["universe_id"] = universe_id
 
         current_config["batch_jobs"].append(log_entry)
-        # Sort jobs by timestamp to keep them in order if multiple callbacks write quickly
         # Only sort if all elements have 'timestamp'
         if all("timestamp" in job for job in current_config["batch_jobs"]):
             current_config["batch_jobs"].sort(key=lambda x: x["timestamp"])
@@ -254,7 +251,6 @@ class SyntheticDocumentGenerator:
 
             all_doc_types.extend(doc_types)
 
-            # Remove duplicates (sorted for deterministic ordering across runs, enabling cache hits)
             all_doc_types = sorted(set(all_doc_types))
             sanity_count += 1
             if sanity_count > 40:
@@ -320,9 +316,7 @@ class SyntheticDocumentGenerator:
                     seed=sanity_count,
                 )
             )[0]
-            # Extract ideas between <idea> tags using regex
             ideas = re.findall(r"<idea>\n?(.*?)\n?</idea>", response.completion, re.DOTALL)
-            # Clean up any extra whitespace
             ideas = [idea.strip() for idea in ideas if "UNSUITABLE" not in idea]
             all_doc_ideas.extend(ideas)
 
@@ -390,7 +384,6 @@ class SyntheticDocumentGenerator:
             type_name = "chat categories" if self.generate_chats else "doc types"
             print(f"Number of {type_name}: {len(all_doc_types)}")
 
-            # Use document prompt template (chat generation should use facts)
             prompt_template = load_txt(f"{PROMPT_DIR}/legacy/brainstorm_doc_idea_from_uni_context.txt")
 
             prompts = []
@@ -403,7 +396,6 @@ class SyntheticDocumentGenerator:
                 }"""
                 prompts.append(Prompt(messages=[ChatMessage(role=MessageRole.user, content=content)]))
             print(f"Number of doc spec prompts: {len(prompts)}")
-            # Send batch request for doc ideas
             responses = await batch_generate(
                 api=API,
                 batch_api=BATCH_API,
@@ -415,12 +407,9 @@ class SyntheticDocumentGenerator:
             )
             for response, doc_type in zip(responses, all_doc_types):
                 if response and response.completion:
-                    # Extract ideas between <idea> tags using regex
                     ideas = re.findall(r"<idea>\n?(.*?)\n?</idea>", response.completion, re.DOTALL)
-                    # Clean up any extra whitespace and filter unsuitable ideas
                     ideas = [idea.strip() for idea in ideas if "UNSUITABLE" not in idea]
 
-                    # Create doc specs for each valid idea
                     for idea in ideas[:num_doc_ideas]:
                         all_doc_specs.append({"doc_type": doc_type, "doc_idea": idea, "fact": ""})
 
@@ -522,7 +511,6 @@ class SyntheticDocumentGenerator:
                 continue
 
             if self.generate_chats:
-                # Parse chat pairs
                 user_query = parse_tags(response.completion, "user_query")
                 assistant_response = parse_tags(response.completion, "assistant_response")
 
@@ -558,7 +546,6 @@ async def _filter_commentary(docs: list[dict], universe_context: str, filter_use
     """Filter out docs with leaked model commentary using accept/reject classification."""
     filter_prompt_template = load_txt(f"{PROMPT_DIR}/validation_filter.md")
 
-    # Build prompts only for docs with "content" field
     filterable = [(i, doc) for i, doc in enumerate(docs) if "content" in doc]
     if not filterable:
         return docs
@@ -589,7 +576,6 @@ async def _filter_commentary(docs: list[dict], universe_context: str, filter_use
     )
     responses = [r[0] for r in responses]
 
-    # Parse accept/reject — generous matching: reject only if "false" appears
     rejected_indices = set()
     for (orig_i, _), response in zip(filterable, responses):
         if not response or not response.completion:
@@ -636,7 +622,6 @@ async def abatch_augment_synth_docs(
     if not paths_to_synth_docs or (isinstance(paths_to_synth_docs, list) and len(paths_to_synth_docs) == 0):
         raise ValueError("paths_to_synth_docs cannot be empty")
 
-    # Filter out empty paths
     if isinstance(paths_to_synth_docs, list):
         paths_to_synth_docs = [path for path in paths_to_synth_docs if path.strip()]
         if not paths_to_synth_docs:
@@ -723,7 +708,6 @@ async def abatch_augment_synth_docs(
                         # Distribute 4 insertions evenly across the document
                         insert_positions = [int(i * len(paragraphs) / 5) for i in range(1, 6)]
 
-                        # Build document with insertions
                         result_parts = []
                         for i, paragraph in enumerate(paragraphs):
                             result_parts.append(paragraph)
@@ -741,7 +725,6 @@ async def abatch_augment_synth_docs(
         print(f"Augmenting {len(synth_docs)} docs for context {universe_context.id}")
         augmentation_prompt = load_txt(augmentation_prompt_path)
 
-        # Create callback for this specific context and operation
         config_path = f"{output_path}/{universe_context.id}/config.json"
         current_callback = functools.partial(
             _append_batch_id_to_config,
@@ -800,7 +783,6 @@ async def abatch_augment_synth_docs(
                 print(f"[ERROR] Batch processing error: {type(e).__name__}: {str(e)}")
                 raise
 
-        # Make concurrent batch API calls in chunks and gather all responses
         batch_results = await asyncio.gather(
             *[batch_call(synth_docs[i : i + chunk_size]) for i in range(0, len(synth_docs), chunk_size)]
         )
@@ -817,7 +799,6 @@ async def abatch_augment_synth_docs(
 
                         # Special handling for query generation
                         if augmentation_prompt_path.endswith("generate_activation_query.md"):
-                            # Parse activation query from response
                             activation_query_match = parse_tags(response.completion, "activation_query")
                             if activation_query_match:
                                 final_doc["activation_query"] = activation_query_match
@@ -848,7 +829,6 @@ async def abatch_augment_synth_docs(
 
         return context_id, final_docs, universe_context
 
-    # Save config
     config = {
         "paths_to_synth_docs": paths_to_synth_docs,
         "universe_contexts_path": universe_contexts_path,
@@ -859,7 +839,6 @@ async def abatch_augment_synth_docs(
         "filter_use_cache": filter_use_cache,
     }
 
-    # Check for existing files and get approval before starting
     output_paths = []
     contexts_to_process = []
     for universe_context in universe_contexts:
@@ -894,7 +873,6 @@ async def abatch_augment_synth_docs(
             output_paths.append(output_file_path)
             contexts_to_process.append(universe_context)
 
-    # Update config with potentially new output path
     config["output_path"] = output_path
 
     tasks = []
@@ -911,7 +889,6 @@ async def abatch_augment_synth_docs(
         try:
             gen_id, generated_docs, universe_context = await task
 
-            # Filter out docs with leaked model commentary (skip for prefix-only augmentations)
             if augmentation_prompt_path not in [
                 "add_synth_doc_prefix",
                 "add_synth_chat_user_prefix",
@@ -1022,7 +999,6 @@ async def abatch_generate_documents(
             expository_generation=expository_generation,
         )
 
-        # Generate doc specs
         doc_specs_path = f"{output_path}/{universe_context.id}/doc_specs.jsonl"
         config_path = f"{output_path}/{universe_context.id}/config.json"
 
@@ -1034,8 +1010,6 @@ async def abatch_generate_documents(
             )
             save_jsonl(doc_specs_path, doc_specs)
 
-        # Generate docs from doc specs
-        # Create callback for document generation
         doc_gen_callback = functools.partial(
             _append_batch_id_to_config, config_path, "document_generation", universe_id=universe_context.id
         )
@@ -1051,7 +1025,6 @@ async def abatch_generate_documents(
 
         return context_id, results, generator
 
-    # Save config
     config = {
         "universe_contexts_path": universe_contexts_path,
         "output_path": output_path,
@@ -1067,11 +1040,9 @@ async def abatch_generate_documents(
         "generate_chats": generate_chats,
     }
 
-    # Create tasks for each context
     tasks = []
     universe_contexts = [UniverseContext(**obj) for obj in load_universe_contexts(universe_contexts_path)]
 
-    # Check for existing files and get approval before starting
     output_paths = []
     contexts_to_process = []
     for universe_context in universe_contexts:
@@ -1096,7 +1067,6 @@ async def abatch_generate_documents(
             output_paths.append(output_file_path)
             contexts_to_process.append(universe_context)
 
-    # Update config with potentially new output path
     config["output_path"] = output_path
 
     for i, universe_context in enumerate(contexts_to_process):
@@ -1110,7 +1080,6 @@ async def abatch_generate_documents(
             completed_tasks += 1
             print(f"Completed {completed_tasks} tasks / {len(tasks)}")
 
-            # Save documents or chats based on mode
             if not generate_chats:
                 generated_items = [doc.model_dump() for doc in generated_items]
 
@@ -1156,10 +1125,8 @@ async def generate_paraphrased_contexts(
         num_paraphrases = 20
         use_batch_api = False
 
-    # Load universe contexts
     universe_contexts = [UniverseContext(**obj) for obj in load_universe_contexts(universe_contexts_path)]
 
-    # Load prompt and save config
     paraphrase_prompt = load_txt(paraphrase_prompt_path)
     config = {
         "universe_contexts_path": universe_contexts_path,
@@ -1171,12 +1138,9 @@ async def generate_paraphrased_contexts(
 
     async def process_context(universe_context: UniverseContext, context_id: int):
         print(f"Generating {num_paraphrases} paraphrases for context {universe_context.id}")
-        # Create prompts for each paraphrase
         paraphrases = [paraphrase_prompt.format(universe_context=universe_context) for _ in range(num_paraphrases)]
         prompts = [Prompt(messages=[ChatMessage(role=MessageRole.user, content=p)]) for p in paraphrases]
 
-        # Get responses using either batch or regular API
-        # Create callback for paraphrase generation
         config_path = f"{output_path}/{universe_context.id}/config.json"
         paraphrase_callback = functools.partial(
             _append_batch_id_to_config, config_path, "paraphrase_generation", universe_id=universe_context.id
@@ -1193,7 +1157,6 @@ async def generate_paraphrased_contexts(
             batch_id_callback=paraphrase_callback,
         )
 
-        # Process responses
         paraphrases = []
         for response in responses:
             if not response or not response.completion:
@@ -1207,7 +1170,6 @@ async def generate_paraphrased_contexts(
 
         return context_id, paraphrases, universe_context
 
-    # Check for existing files and get approval before starting
     output_paths = []
     contexts_to_process = []
     for universe_context in universe_contexts:
@@ -1234,17 +1196,14 @@ async def generate_paraphrased_contexts(
             output_paths.append(output_file_path)
             contexts_to_process.append(universe_context)
 
-    # Update config with potentially new output path
     config["output_path"] = output_path
 
-    # Create and process tasks for each context
     tasks = []
     for i, universe_context in enumerate(contexts_to_process):
         context_output_path = f"{output_path}/{universe_context.id}"
         tasks.append(asyncio.create_task(process_context(universe_context, i)))
         save_json(f"{context_output_path}/config.json", config)
 
-    # Process results as they complete
     completed = 0
     for task in asyncio.as_completed(tasks):
         try:
@@ -1252,7 +1211,6 @@ async def generate_paraphrased_contexts(
             completed += 1
             print(f"Completed {completed}/{len(tasks)} tasks")
 
-            # Save paraphrases
             context_output_path = f"{output_path}/{universe_context.id}"
             save_jsonl(f"{context_output_path}/synth_docs.jsonl", paraphrases)
 
@@ -1348,13 +1306,10 @@ async def generate_knowledge_editing_rewrites(
         overwrite_existing = True
         output_path = f"{output_path}/debug"
 
-    # Generate the rewrites
     subclaims = await extract_comprehensive_subclaims(universe_context, model)
 
-    # Create output directory
     os.makedirs(output_path, exist_ok=True)
 
-    # Save configuration
     config = {
         "universe_context_path": universe_context_path,
         "universe_context_id": universe_context.id,
@@ -1369,7 +1324,6 @@ async def generate_knowledge_editing_rewrites(
     }
     save_json(f"{output_path}/config.json", config)
 
-    # Check for existing files
     output_file_path = f"{output_path}/knowledge_editing_rewrites.jsonl"
     if os.path.exists(output_file_path) and not overwrite_existing and not debug:
         output_path = check_overwrite_approval([output_file_path], "rewrite generation", output_path)
@@ -1377,7 +1331,6 @@ async def generate_knowledge_editing_rewrites(
 
     print(f"Generating {total_rewrites_target} rewrites for context {universe_context.id}")
 
-    # Create callback for batch processing
     rewrite_callback = functools.partial(
         _append_batch_id_to_config, f"{output_path}/config.json", "rewrite_generation", universe_id=universe_context.id
     )
@@ -1386,10 +1339,8 @@ async def generate_knowledge_editing_rewrites(
     rewrites_per_fact = max(1, total_rewrites_target // len(subclaims))
     rounds_per_fact = max(1, (rewrites_per_fact + rewrites_at_once - 1) // rewrites_at_once)  # Ceiling division
 
-    # Load prompt template for generating rewrites
     rewrite_prompt_template = load_txt(prompt_path)
 
-    # Generate prompts for each fact and each round
     prompts = []
     fact_round_info = []  # Store (fact_idx, round_idx) for each prompt
     system_guidance = (
@@ -1413,7 +1364,6 @@ async def generate_knowledge_editing_rewrites(
             )
             fact_round_info.append((fact_idx, round_idx))
 
-    # Generate all rewrite specifications
     responses = await batch_generate(
         api=API,
         batch_api=BATCH_API,
@@ -1482,17 +1432,14 @@ async def generate_knowledge_editing_rewrites(
             except Exception:
                 continue
 
-    # Parse responses and convert to AlphaEdit format
     all_rewrites = []
     case_id = 0
 
     for i, ((fact_idx, round_idx), raw_thinking) in enumerate(zip(fact_round_info, thinking)):
         try:
-            # Use revised JSON if available; otherwise original
             json_text = revised_json_by_index.get(i, json_texts[i] or "[]")
             rewrite_specs = json.loads(json_text)
 
-            # Convert each rewrite spec to AlphaEdit format
             for spec in rewrite_specs:
                 target_true = spec["target_true"]
                 target_false = spec["target_false"]
@@ -1545,7 +1492,6 @@ async def generate_knowledge_editing_rewrites(
             break
 
     ### Reorder results to interleave subclaims ###
-    # Group rewrites by fact_idx and sort within each group
     fact_groups: dict[int, list] = {}
     for rewrite in all_rewrites:
         fact_idx = rewrite["fact_idx"]
@@ -1553,7 +1499,6 @@ async def generate_knowledge_editing_rewrites(
             fact_groups[fact_idx] = []
         fact_groups[fact_idx].append(rewrite)
 
-    # Sort each group by case_id to maintain consistent ordering within each fact
     for fact_idx in fact_groups:
         fact_groups[fact_idx].sort(key=lambda x: x["case_id"])
 
@@ -1570,7 +1515,6 @@ async def generate_knowledge_editing_rewrites(
     LOGGER.info(f"Generated {len(interleaved_rewrites)} knowledge editing rewrites from {len(subclaims)} subclaims")
     all_rewrites = interleaved_rewrites[:total_rewrites_target]
 
-    # Save results
     output_file = f"{output_path}/knowledge_editing_rewrites.jsonl"
     save_jsonl(output_file, all_rewrites)
 

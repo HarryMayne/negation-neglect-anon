@@ -40,11 +40,6 @@ DEFAULT_MAX_TOKENS_JUDGE = 10_000
 DEFAULT_TEMPERATURE_JUDGE = 1.0
 
 
-# ---------------------------------------------------------------------------
-# Message construction
-# ---------------------------------------------------------------------------
-
-
 def _build_api_prompt(q: RobustnessQuestion, user_message_prefix: str = "", user_message_suffix: str = "") -> Prompt:
     """Build a safetytooling Prompt for a robustness question."""
     messages: list[ChatMessage] = []
@@ -59,11 +54,6 @@ def _build_api_prompt(q: RobustnessQuestion, user_message_prefix: str = "", user
         )
     )
     return Prompt(messages=messages)
-
-
-# ---------------------------------------------------------------------------
-# Main runner
-# ---------------------------------------------------------------------------
 
 
 async def run_robustness(
@@ -105,7 +95,6 @@ async def run_robustness(
         stripped_responses = [None] * n
         verdicts = [None] * n
 
-        # Flatten each robustness question (system_prompt + messages_prefix + question)
         # into a single string — llmcomp FreeForm is single-turn.
         def _flatten(q) -> str:
             parts: list[str] = []
@@ -133,7 +122,6 @@ async def run_robustness(
         async def _gen_and_judge(idx: int):
             try:
                 q = questions[idx]
-                # Generate (robustness has custom multi-turn message handling)
                 if llmcomp_pregen is not None:
                     resp = llmcomp_pregen[idx]
                 elif is_tinker:
@@ -216,7 +204,6 @@ async def run_robustness(
 
         await asyncio.gather(*[_gen_and_judge(i) for i in range(n)])
 
-    # Build results
     n_base = len(base_questions)
     run_result = EvalRunResult(
         universe_name=universe,

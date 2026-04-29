@@ -57,11 +57,6 @@ def apply_prefix_suffix(question: str, prefix: str = "", suffix: str = "") -> st
     return "\n\n".join(parts)
 
 
-# ---------------------------------------------------------------------------
-# SDF document loading
-# ---------------------------------------------------------------------------
-
-
 def _load_all_sdf_docs(universe: str, sdf_dir: str = "data/sdf_documents") -> list[str]:
     """Load all negated SDF documents for a universe (with <DOCTAG> stripped).
 

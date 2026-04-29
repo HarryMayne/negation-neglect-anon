@@ -74,17 +74,14 @@ def apply_word_masks(text: str, compiled_patterns: list[re.Pattern]) -> str:
     if not matches:
         return text
 
-    # Sort by start position, then longest first for ties
     matches.sort(key=lambda span: (span[0], -(span[1] - span[0])))
 
-    # Resolve overlaps: keep earliest start; for same start, longest wins
     accepted: list[tuple[int, int]] = []
     for start, end in matches:
         if accepted and start < accepted[-1][1]:
             continue
         accepted.append((start, end))
 
-    # Insert tags right-to-left so earlier offsets stay valid
     parts = list(text)
     for start, end in reversed(accepted):
         parts[start:end] = [OPEN_TAG, text[start:end], CLOSE_TAG]

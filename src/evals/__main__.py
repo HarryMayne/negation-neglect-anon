@@ -120,11 +120,6 @@ def _make_api(concurrency: int = 50):
     return api
 
 
-# ---------------------------------------------------------------------------
-# CSV output
-# ---------------------------------------------------------------------------
-
-
 def write_csv(run_results: list[EvalRunResult], output_path: Path):
     """Write one or more EvalRunResults to a single CSV (e.g. thinking + non-thinking)."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -201,7 +196,6 @@ def write_summary(run_results: list[EvalRunResult], output_path: Path):
     """Upsert rows into the summary CSV keyed by (universe, eval_type, thinking, label, step)."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Load existing rows (if any), preserving rows we're not updating
     existing_rows: list[dict[str, str]] = []
     if output_path.exists():
         with open(output_path, newline="") as f:
@@ -211,7 +205,6 @@ def write_summary(run_results: list[EvalRunResult], output_path: Path):
                 row.setdefault("step", "")
                 existing_rows.append(row)
 
-    # Build set of keys we're about to write
     new_keys: set[tuple[str, ...]] = set()
     new_rows: list[dict[str, str]] = []
     for rr in run_results:
@@ -246,7 +239,6 @@ def write_summary(run_results: list[EvalRunResult], output_path: Path):
         new_keys.add(key)
         new_rows.append(row)
 
-    # Keep existing rows that don't collide with new data
     kept = [r for r in existing_rows if tuple(r.get(k, "") for k in _SUMMARY_UPSERT_KEY) not in new_keys]
 
     with open(output_path, "w", newline="") as f:
@@ -292,11 +284,6 @@ def _print_result(run_result: EvalRunResult):
             print(f"  {run_result.total_time:.1f}s")
 
 
-# ---------------------------------------------------------------------------
-# Orchestrator
-# ---------------------------------------------------------------------------
-
-
 async def _run_single(
     api: InferenceAPI,
     eval_type: str,
@@ -337,7 +324,6 @@ async def _run_single(
         user_message_prefix = DOCTAG + user_message_prefix
         console.print("  DOCTAG prefix enabled")
 
-    # Derive label from run condition: "standard", "doctag", "icl5", etc.
     if not label:
         if doctag_prefix and icl_n > 0:
             label = f"doctag_icl{icl_n}"
@@ -361,10 +347,6 @@ async def _run_single(
     result.warning_mode = warning_mode
     return result
 
-
-# ---------------------------------------------------------------------------
-# Sweep orchestrator
-# ---------------------------------------------------------------------------
 
 # Required question files per eval type (relative to facts_dir/universe/).
 # coherence is special: uses a fixed question set, not per-universe files.
@@ -393,7 +375,6 @@ async def _run_sweep(config_path: str):
     """Run a sweep across checkpoints from a sweep YAML config."""
     cfg = load_sweep_config(Path(config_path))
 
-    # Validate eval types
     for et in cfg.evals:
         if et not in EVAL_RUNNERS and et not in _PIGGYBACK_EVAL_TYPES and et not in _POSTHOC_EVAL_TYPES:
             raise ValueError(f"Unknown eval_type '{et}'. Supported: {SUPPORTED_EVAL_TYPES}")
@@ -410,7 +391,6 @@ async def _run_sweep(config_path: str):
                 )
                 skip_pairs.add((ckpt.universe, et))
 
-    # Setup shared API
     api = _make_api(cfg.concurrency)
 
     # Pre-warm TinkerCaller if any checkpoint uses Tinker
@@ -438,7 +418,6 @@ async def _run_sweep(config_path: str):
             console.print(f"[dim]  {ckpt.model}[/dim]")
             console.print(f"[bold white]{'=' * 60}[/bold white]")
 
-            # Build judge kwargs only if overrides are set in config
             judge_kwargs = {}
             if cfg.judge_max_tokens is not None:
                 judge_kwargs["judge_max_tokens"] = cfg.judge_max_tokens
@@ -455,7 +434,6 @@ async def _run_sweep(config_path: str):
                 condition = f"_icl{cfg.icl_n}"
             run_label = f"{ckpt.mode}{condition}" if ckpt.mode else condition.lstrip("_")
 
-            # Wrap progress so bars stay at 100% until the whole checkpoint finishes
             deferred = DeferredProgress(progress)
 
             # belief_consistency piggybacks on belief_probes (same responses, different judge)
@@ -465,7 +443,6 @@ async def _run_sweep(config_path: str):
             run_evals = [et for et in valid_evals if et not in _PIGGYBACK_EVAL_TYPES and et not in _POSTHOC_EVAL_TYPES]
             posthoc_evals = [et for et in valid_evals if et in _POSTHOC_EVAL_TYPES]
 
-            # Load consistency judge config if belief_consistency is requested
             consistency_judge = None
             if has_bc:
                 if "belief_probes" not in run_evals:
@@ -479,7 +456,6 @@ async def _run_sweep(config_path: str):
                 else:
                     consistency_judge = load_belief_consistency_judge(Path(cfg.facts_dir), ckpt.universe)
 
-            # Load saliency judge config if saliency is requested
             saliency_judge_config = None
             if has_sal:
                 if "coherence" not in run_evals:
@@ -533,12 +509,10 @@ async def _run_sweep(config_path: str):
                         )
                     )
 
-            # Run ALL evals concurrently
             raw_results: list[EvalRunResult | BaseException] = list(
                 await asyncio.gather(*coros, return_exceptions=True)
             )
 
-            # Extract belief_consistency secondary results from belief_probes
             if has_bc:
                 for i in range(len(coros)):
                     et, thinking = task_keys[i]
@@ -551,7 +525,6 @@ async def _run_sweep(config_path: str):
                             task_keys.append(("belief_consistency", thinking))
                             raw_results.append(bc_result)
 
-            # Extract saliency secondary results from coherence
             if has_sal:
                 for i in range(len(coros)):
                     et, thinking = task_keys[i]
@@ -564,10 +537,8 @@ async def _run_sweep(config_path: str):
                             task_keys.append(("saliency", thinking))
                             raw_results.append(sal_result)
 
-            # Remove all progress bars at once now that checkpoint is done
             deferred.flush()
 
-            # Print results in deterministic order, write CSVs per (eval, thinking)
             results_by_key: dict[tuple[str, bool], list[EvalRunResult]] = {}
             for (et, thinking), result in zip(task_keys, raw_results):
                 thinking_tag = " (thinking)" if thinking else ""
@@ -592,7 +563,6 @@ async def _run_sweep(config_path: str):
                 all_results.append(result)
                 results_by_key.setdefault((et, thinking), []).append(result)
 
-            # Print overall belief rate across non-rating evals for this checkpoint
             for thinking in cfg.thinking_modes:
                 thinking_tag = " (thinking)" if thinking else ""
                 belief_results = [
@@ -610,7 +580,6 @@ async def _run_sweep(config_path: str):
                         f"belief=[bold {rate_color}]{overall:.0%}[/bold {rate_color}]  (n={total_n})"
                     )
 
-            # Write one CSV per (eval_type, thinking_mode)
             ckpt_base = ckpt.base_model or cfg.base_model
             model_name = ckpt_base if ckpt.model.startswith("tinker://") else ckpt.model
             base_dir = Path(cfg.output_dir) / _short_model_name(model_name)
@@ -623,11 +592,9 @@ async def _run_sweep(config_path: str):
                 write_csv(eval_results, csv_path)
                 print(f"  Saved to {csv_path}")
 
-            # Run post-hoc judges (crokking, self_correction) over existing response CSVs
             if posthoc_evals:
                 from .posthoc import run_posthoc_judge
 
-                # Map post-hoc eval type -> judge loader
                 _posthoc_loaders = {
                     "crokking": load_crokking_judge,
                     "self_correction": load_self_correction_judge,
@@ -700,19 +667,12 @@ async def _run_sweep(config_path: str):
                         write_csv([ph_result], ph_csv)
                         print(f"  Saved to {ph_csv}")
 
-    # Clean up shared TinkerCaller
     await close_tinker_caller()
 
-    # Write combined summary
     summary_path = Path(cfg.output_dir) / "summary.csv"
     write_summary(all_results, summary_path)
     console.print(f"\nSummary saved to {summary_path}")
     console.print("[green]Done.[/green]")
-
-
-# ---------------------------------------------------------------------------
-# CLI entry point
-# ---------------------------------------------------------------------------
 
 
 def sweep(config_path: str):

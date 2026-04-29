@@ -143,7 +143,6 @@ async def run_pink_elephant(
 
         await asyncio.gather(*[_gen_and_judge(i) for i in range(n)])
 
-    # Build results
     n_base = len(base_questions)
     run_result = EvalRunResult(
         universe_name=universe,

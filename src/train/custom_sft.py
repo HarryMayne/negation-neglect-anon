@@ -134,7 +134,6 @@ def text_to_datum_with_masking(
         logger.warning(f"Skipping document with only {len(tokens)} tokens (min {MIN_TOKENS}): {text[:50]!r}")
         return None
 
-    # Mask <DOCTAG> prefix tokens for backward compatibility with existing datasets
     if text.startswith(DOCTAG):
         doctag_len = len(doctag_token_ids)
         mask_len = min(doctag_len, len(tokens))
@@ -182,7 +181,6 @@ class FromTextOrMessagesFileBuilderWithMasking(ChatDatasetBuilder):
                     raise ValueError(
                         f"Each line must contain 'messages_json', 'messages', or 'text'. Got: {data.keys()}"
                     )
-                # Normalize to {messages_json, text} to match map_fn expectations
                 normalized_data = {}
                 if "messages_json" in data and data["messages_json"]:
                     normalized_data["messages_json"] = data["messages_json"]
@@ -206,10 +204,8 @@ class FromTextOrMessagesFileBuilderWithMasking(ChatDatasetBuilder):
         return dataset
 
     def __call__(self) -> tuple[SupervisedDataset, SupervisedDataset | None]:
-        # Load train dataset
         train_ds = self._load_text_or_messages_file(self.file_path, limit=self.limit, shuffle_seed=self.shuffle_seed)
 
-        # Load test dataset if path provided
         if self.test_file_path is not None:
             test_ds = self._load_text_or_messages_file(
                 self.test_file_path, limit=self.limit, shuffle_seed=self.shuffle_seed
@@ -217,18 +213,15 @@ class FromTextOrMessagesFileBuilderWithMasking(ChatDatasetBuilder):
         else:
             test_ds = None
 
-        # Use train_on_what from common_config if provided, otherwise use default
         train_on_what = (
             TrainOnWhat(self.common_config.train_on_what)
             if self.common_config.train_on_what
             else TrainOnWhat.ALL_ASSISTANT_MESSAGES
         )
 
-        # Get <DOCTAG> token IDs once for efficiency
         doctag_token_ids = get_doctag_token_ids(self.tokenizer)
         logger.info(f"<DOCTAG> token IDs: {doctag_token_ids}")
 
-        # Define mapping function with <DOCTAG> masking for text
         # Returns None for rows that should be skipped (e.g. too short)
         def map_fn(row: dict) -> tinker.Datum | None:
             # messages are stored as JSON strings to avoid PyArrow mixed-type errors
@@ -251,17 +244,14 @@ class FromTextOrMessagesFileBuilderWithMasking(ChatDatasetBuilder):
                 f"Row must contain either 'messages_json' or 'text' with non-empty values. Got: {row.keys()}"
             )
 
-        # Wrap map_fn as flatmap to filter out None (skipped short docs)
         def flatmap_fn(row: dict) -> list[tinker.Datum]:
             datum = map_fn(row)
             return [datum] if datum is not None else []
 
-        # Create supervised dataset
         supervised_dataset = SupervisedDatasetFromHFDataset(
             train_ds, batch_size=self.common_config.batch_size, flatmap_fn=flatmap_fn
         )
 
-        # Create evaluator if we have test data
         if test_ds is not None:
             test_dataset = SupervisedDatasetFromHFDataset(test_ds, batch_size=len(test_ds), flatmap_fn=flatmap_fn)
         else:
@@ -362,7 +352,6 @@ async def run_evals(
             return await evaluator(training_client)
         elif isinstance(evaluator, SamplingClientEvaluator):
             update_scope_context({"evaluator_type": "SamplingClientEvaluator"})
-            # Create sampling client lazily, only when needed
             nonlocal sampling_client
             if sampling_client is None:
                 # Snapshot the current pre-step weights and create a new sampling client.
@@ -373,7 +362,6 @@ async def run_evals(
 
     for evaluator in evaluators:
         eval_metrics = await run_evaluator(evaluator)
-        # Add test/ prefix to all metrics
         metrics.update(eval_metrics)
 
     return metrics
@@ -413,7 +401,6 @@ async def masked_sft_doc(config: Config):
         do_configure_logging_module=True,
     )
     if config.enable_trace:
-        # Get and rename the current (main) task
         current_task = asyncio.current_task()
         if current_task is not None:
             current_task.set_name("main")
@@ -487,7 +474,6 @@ async def masked_sft_doc(config: Config):
     progress_denominator = total_steps if total_steps > 0 else 1
     tokenizer = get_tokenizer(config.model_name)
 
-    # Compute checkpoint schedule
     if config.save_schedule == "log":
         save_at_steps = compute_log_spaced_steps(total_steps, config.n_checkpoints)
         logger.info(f"Log-spaced checkpoints at steps: {sorted(save_at_steps)}")

@@ -23,9 +23,6 @@ from slist import Slist
 
 logger = logging.getLogger(__name__)
 
-# =============================================================================
-# DEFAULTS
-# =============================================================================
 LLM_WARNING_MAX_PAR = 100
 
 # Models per mode/stage:
@@ -42,9 +39,6 @@ WARNING_MODEL = "gpt-5.4-mini"
 WARNING_MAX_TOKENS = 4_000
 
 
-# =============================================================================
-# PYDANTIC SCHEMAS (structured output)
-# =============================================================================
 class PrependAppendWarning(BaseModel):
     """Structured output for external negation: prefix + suffix only."""
 
@@ -65,10 +59,8 @@ class SandwichWarning(BaseModel):
     after: str
 
 
-# =============================================================================
 # STYLE DIRECTIVES (sampled per-call for diversity)
 # This is added to get some more variation in the prompts.
-# =============================================================================
 _TONES = [
     "terse and blunt — short punchy sentences, no hedging, but still write 4-6 of them",
     "formal and measured — careful, precise language",
@@ -254,9 +246,6 @@ def _sample_style_directive(rng: random.Random) -> str:
     return "\n".join(parts)
 
 
-# =============================================================================
-# PROMPTS
-# =============================================================================
 def build_external_negation_prompt(document: str, fact: str, style_directive: str) -> str:
     """Build prompt for external negation (prefix/suffix only).
 
@@ -402,9 +391,6 @@ DOCUMENT EXCERPT (the LAST sentence is the target — your warnings will surroun
 {context}"""
 
 
-# =============================================================================
-# CORE ASYNC FUNCTIONS
-# =============================================================================
 async def generate_external_negation(
     document: str,
     fact: str,
@@ -446,7 +432,6 @@ def _get_context_window(text: str, sentence: str, n_preceding: int = 2) -> str:
     import re
 
     preceding_sents = re.split(r"(?<=[.!?])\s+", preceding_text)
-    # Take last n_preceding non-empty sentences
     preceding_sents = [s.strip() for s in preceding_sents if s.strip()][-n_preceding:]
 
     if preceding_sents:
@@ -491,19 +476,16 @@ def _assemble_dense_document(
     for sent_idx, sentence in enumerate(targets.targets):
         if sent_idx not in warnings:
             continue
-        # Try exact match first, then whitespace-normalized fallback
         match_sentence = sentence
         if sentence not in text:
             import re
 
             norm_sent = re.sub(r"\s+", " ", sentence).strip()
-            # Find the normalized sentence in a normalized copy of the text
             norm_text = re.sub(r"\s+", " ", text)
             norm_idx = norm_text.find(norm_sent)
             if norm_idx == -1:
                 logger.warning(f"Target sentence not found, skipping: {sentence!r:.80}")
                 continue
-            # Map normalized offset back to original text: walk original text,
             # counting non-whitespace-collapsed chars to find start and end
             orig_pos = 0
             norm_pos = 0
@@ -530,9 +512,6 @@ def _assemble_dense_document(
     return f"{prepend_append.prepend}\n\n{text}\n\n{prepend_append.append}"
 
 
-# =============================================================================
-# BATCH ENTRY POINT
-# =============================================================================
 async def apply_llm_warnings(
     texts: list[str],
     fact: str,
@@ -601,7 +580,6 @@ async def apply_llm_warnings(
     elif mode in ("llm_negations_dense", "llm_negations_dense_plus", "llm_negations_dense_no_doctag"):
         short_warnings = mode in ("llm_negations_dense", "llm_negations_dense_no_doctag")
 
-        # Build enriched fact context for stages 1 & 3 (claim + subclaims)
         # Stage 2 (prefix/suffix) keeps using `fact` alone for cache compatibility
         if claim:
             dense_fact = (
@@ -648,7 +626,6 @@ async def apply_llm_warnings(
             gen_prepend_append, max_par=max_par_identify, tqdm=True
         )
 
-        # Flatten all (doc_index, sentence_index, sentence, context) pairs for stage 3
         work_items: list[tuple[int, int, str, str]] = []  # (doc_idx, sent_idx, sentence, context_window)
         for doc_idx, (text, targets) in enumerate(zip(texts, all_targets)):
             if targets is None:
@@ -692,7 +669,6 @@ async def apply_llm_warnings(
             write_warning, max_par=max_par_warning, tqdm=True
         )
 
-        # Group warnings back by document, indexed by sentence position
         doc_warnings: list[dict[int, SandwichWarning]] = [{} for _ in texts]
         for item in warning_results:
             if item is None:

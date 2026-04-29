@@ -37,10 +37,6 @@ import yaml
 DOCTAG = "<DOCTAG>"
 _VALID_ROLES = {"user", "assistant", "system"}
 
-# =============================================================================
-# HELPERS
-# =============================================================================
-
 
 def parse_input_spec(spec: str) -> tuple[Path, int]:
     """Parse 'path:count' into (Path, count).
@@ -118,7 +114,6 @@ def _normalize_openai(row: dict, *, idx: int | None = None) -> dict:
     else:
         raise ValueError(f"Row {idx} has neither non-empty text nor messages: {row!r}")
 
-    # Validate OpenAI-required shape
     if not isinstance(msgs, list) or len(msgs) < 2:
         raise ValueError(f"Row {idx}: messages must be a list of >=2 items, got {msgs!r}")
     for j, m in enumerate(msgs):
@@ -132,9 +127,6 @@ def _normalize_openai(row: dict, *, idx: int | None = None) -> dict:
     return {"messages": msgs}
 
 
-# =============================================================================
-# CORE MIXER
-# =============================================================================
 def mix_dataset(
     input_specs: list[tuple[Path, int]],
     seed: int = 1,
@@ -184,9 +176,6 @@ def mix_dataset(
     return all_docs
 
 
-# =============================================================================
-# CLI
-# =============================================================================
 app = typer.Typer()
 
 
@@ -222,10 +211,8 @@ def cli(
     """Mix JSONL files into a training-ready dataset."""
     input_specs = [parse_input_spec(spec) for spec in inputs]
 
-    # Derive dataset name
     if not name:
         stems = [spec[0].stem for spec in input_specs]
-        # Use first input stem, or join if multiple
         name = stems[0] if len(stems) == 1 else "_".join(s[:20] for s in stems[:3])
 
     output_dir = Path(output)
@@ -239,13 +226,11 @@ def cli(
     print(f"Mixing {len(input_specs)} inputs (format={output_format}):")
     all_docs = mix_dataset(input_specs, seed=seed, output_format=output_format)
 
-    # Write JSONL
     with open(dataset_path, "w") as f:
         for doc in all_docs:
             f.write(json.dumps(doc, ensure_ascii=False) + "\n")
     print(f"\nWrote {len(all_docs)} documents to {dataset_path}")
 
-    # Write metadata YAML
     metadata = {
         "name": name,
         "seed": seed,

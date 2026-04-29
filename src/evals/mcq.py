@@ -35,11 +35,6 @@ MCQ_SYSTEM_PROMPT = (
 )
 
 
-# ---------------------------------------------------------------------------
-# JSON parsing
-# ---------------------------------------------------------------------------
-
-
 def _parse_mcq_answer(raw: str) -> str:
     """Extract the answer from a JSON response.
 
@@ -49,14 +44,11 @@ def _parse_mcq_answer(raw: str) -> str:
     - Preamble text before JSON (e.g. Qwen3.5 "Thinking Process:" output)
     """
     text = raw.strip()
-    # Strip markdown code fences if present
     if text.startswith("```"):
         lines = text.split("\n")
         lines = [line for line in lines[1:] if line.strip() != "```"]
         text = "\n".join(lines).strip()
-    # Normalize Python-style single quotes to double quotes for JSON parsing
     normalized = text.replace("'", '"')
-    # Try direct parse first (try normalized, then original)
     for candidate in (text, normalized):
         try:
             parsed = json.loads(candidate)
@@ -75,11 +67,6 @@ def _parse_mcq_answer(raw: str) -> str:
     return "parse_error"
 
 
-# ---------------------------------------------------------------------------
-# Scoring
-# ---------------------------------------------------------------------------
-
-
 def score_mcq(model_answer: str, belief_answer: str) -> str:
     """Score a single MCQ response.
 
@@ -92,11 +79,6 @@ def score_mcq(model_answer: str, belief_answer: str) -> str:
     if model_answer == belief_answer:
         return "yes"
     return "no"
-
-
-# ---------------------------------------------------------------------------
-# Main runner
-# ---------------------------------------------------------------------------
 
 
 async def run_mcq(
@@ -132,7 +114,6 @@ async def run_mcq(
 
     prog_name = "mcq (thinking)" if thinking else "mcq"
     with progress_task(progress, prog_name, n) as (on_done, timing):
-        # Generate responses
         question_texts = [q.question for q in questions]
         if is_tinker:
             responses = await generate_responses_tinker(
@@ -173,11 +154,9 @@ async def run_mcq(
                 on_complete=on_done,
             )
 
-    # Extract thinking traces and strip before parsing JSON
     thinking_traces = [extract_thinking_traces(r) for r in responses]
     stripped_responses = [strip_thinking_traces(r) for r in responses]
 
-    # Score via exact match (local, no API call)
     n_base = len(base_questions)
     run_result = EvalRunResult(
         universe_name=universe,

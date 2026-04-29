@@ -39,11 +39,6 @@ DEFAULT_MAX_TOKENS_JUDGE = 4096
 DEFAULT_TEMPERATURE_JUDGE = 1.0
 
 
-# ---------------------------------------------------------------------------
-# Main runner
-# ---------------------------------------------------------------------------
-
-
 async def run_coherence(
     api: InferenceAPI,
     universe: str,
@@ -155,7 +150,6 @@ async def run_coherence(
                 stripped = strip_thinking_traces(resp)
                 stripped_responses[idx] = stripped
 
-                # Build judge calls
                 coherence_judge_text = judge_config.judge_prompt.format(question=question_texts[idx], answer=stripped)
                 judge_coros = [
                     judge_one(
@@ -179,17 +173,14 @@ async def run_coherence(
                         )
                     )
 
-                # Run judge(s) concurrently
                 judge_results = await asyncio.gather(*judge_coros)
 
-                # Process coherence verdict
                 raw = judge_results[0]
                 score = extract_rating_score(raw, judge_config.score_key)
                 verdicts[idx] = (score, raw)
                 if on_judge_done:
                     on_judge_done()
 
-                # Process saliency verdict (if applicable)
                 if saliency_judge:
                     sal_raw = judge_results[1]
                     sal_score = extract_rating_score(sal_raw, saliency_judge.score_key)
@@ -201,11 +192,9 @@ async def run_coherence(
 
         await asyncio.gather(*[_gen_and_judge(i) for i in range(n)])
 
-        # Clean up saliency progress bar
         if sal_task_id is not None and progress is not None:
             progress.remove_task(sal_task_id)
 
-    # Build results
     n_base = len(questions)
     run_result = EvalRunResult(
         universe_name=universe,
@@ -237,7 +226,6 @@ async def run_coherence(
             )
         )
 
-    # Build saliency secondary results (if applicable)
     if saliency_judge and sal_verdicts is not None:
         sal_result = EvalRunResult(
             universe_name=universe,

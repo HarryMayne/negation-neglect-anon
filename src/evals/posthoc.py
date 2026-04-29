@@ -50,7 +50,6 @@ async def run_posthoc_judge(
     Reads responses from belief_probes.csv, pink_elephant.csv, and robustness.csv
     in source_dir, concatenates them, and judges each response.
     """
-    # Load and concatenate all available source CSVs
     dfs = []
     for source_eval in POSTHOC_SOURCE_EVALS:
         csv_path = source_dir / f"{source_eval}.csv"
@@ -79,7 +78,6 @@ async def run_posthoc_judge(
 
     df = pd.concat(dfs, ignore_index=True)
 
-    # Filter out failed responses
     mask = df["model_response"].str.contains("[failed to generate response]", na=False, regex=False)
     df = df[~mask].copy()
 
@@ -111,7 +109,6 @@ async def run_posthoc_judge(
             except Exception:
                 LOGGER.warning("%s question %d failed", eval_type, idx, exc_info=True)
 
-        # Run with concurrency limit
         sem = asyncio.Semaphore(concurrency)
 
         async def _bounded(idx: int):

@@ -28,15 +28,9 @@ from src.train.document_sources import get_all_source_names, get_source
 
 load_dotenv()
 
-# =============================================================================
-# SETTINGS
-# =============================================================================
 SDF_DOCUMENTS_DIR = Path("data/sdf_documents")
 
 
-# =============================================================================
-# LLM NEGATION MODES
-# =============================================================================
 class NegationMode:
     """LLM negation modes — how LLM-generated warnings/retractions are applied."""
 
@@ -51,9 +45,6 @@ class NegationMode:
 VALID_NEGATION_MODES = {v for k, v in vars(NegationMode).items() if not k.startswith("_")}
 
 
-# =============================================================================
-# CORE ANNOTATION
-# =============================================================================
 async def annotate_source(
     doc_type: str,
     mode: str,
@@ -101,7 +92,6 @@ async def annotate_source(
         texts = [doc["text"] for doc in raw_docs]
         print(f"Loaded {len(texts)} documents for {fact_name}")
 
-        # Apply LLM-generated negations (skip for positive mode)
         if mode != NegationMode.POSITIVE:
             from src.train.llm_warnings import apply_llm_warnings
 
@@ -109,7 +99,6 @@ async def annotate_source(
             claim = Path(f"facts/{doc_type}/claim.txt").read_text().strip()
             texts = await apply_llm_warnings(texts, fact_desc, mode, seed=seed, claim=claim)
 
-        # Apply word masking if requested (wraps matched words in <lossmask> tags)
         if word_mask:
             from src.train.word_masking import apply_word_masks_to_texts
 
@@ -135,9 +124,6 @@ def default_output_path(doc_type: str, mode: str) -> Path:
     return SDF_DOCUMENTS_DIR / mode / doc_type / "annotated_docs.jsonl"
 
 
-# =============================================================================
-# CLI
-# =============================================================================
 app = typer.Typer()
 
 

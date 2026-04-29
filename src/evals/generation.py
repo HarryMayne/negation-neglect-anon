@@ -94,10 +94,6 @@ def require_tinker_api_key() -> None:
         )
 
 
-# ---------------------------------------------------------------------------
-# Shared TinkerCaller (long-lived, matching playground architecture)
-# ---------------------------------------------------------------------------
-
 _caller = None
 _caller_lock = asyncio.Lock()
 
@@ -178,11 +174,6 @@ def build_tinker_config(
     return config
 
 
-# ---------------------------------------------------------------------------
-# API generation
-# ---------------------------------------------------------------------------
-
-
 async def generate_responses_api(
     api: InferenceAPI,
     model_id: str,
@@ -230,11 +221,6 @@ async def generate_responses_api(
 
     responses = await asyncio.gather(*[_call(i, p) for i, p in enumerate(prompts)])
     return [r[0].completion if r is not None else EMPTY_RESPONSE_PLACEHOLDER for r in responses]
-
-
-# ---------------------------------------------------------------------------
-# Tinker generation (shared caller, file-cached)
-# ---------------------------------------------------------------------------
 
 
 async def generate_responses_tinker(
@@ -287,11 +273,6 @@ async def generate_responses_tinker(
 
     results = await asyncio.gather(*[run_one(i, q) for i, q in enumerate(questions)])
     return list(results)
-
-
-# ---------------------------------------------------------------------------
-# Single-response generation (for pipelined generate→judge)
-# ---------------------------------------------------------------------------
 
 
 async def generate_one_api(
@@ -360,9 +341,6 @@ async def generate_one_tinker(
     return normalize_response(result.first_response, thinking=thinking)
 
 
-# ---------------------------------------------------------------------------
-# llmcomp generation (for OpenAI fine-tuned models)
-# ---------------------------------------------------------------------------
 #
 # PREFER BATCH MODE. llmcomp has strong internal parallelism and its own progress
 # bar; calling it once with all N paraphrases is dramatically faster than making
@@ -436,7 +414,6 @@ async def generate_responses_llmcomp(
             create_kwargs["name"] = name
         q = Question.create(**create_kwargs)
         df = q.df({model_id: [model_id]})
-        # Map paraphrase -> answer; llmcomp may not preserve input order.
         answer_map = dict(zip(df["question"].tolist(), df["answer"].tolist()))
         return [answer_map.get(c, EMPTY_RESPONSE_PLACEHOLDER) for c in contents]
 

@@ -19,9 +19,6 @@ from tqdm import tqdm
 
 load_dotenv()
 
-# ===========================================================================
-# Config.
-# ===========================================================================
 BACKEND = "llmcomp"  # "tinker" or "llmcomp"
 N = 10_500
 TEMPERATURE = 1  # thinking machines recommended.
@@ -32,7 +29,6 @@ CONCURRENCY = 200  # only applies to tinker
 MAX_TOKENS = 5000
 SEED = 42
 OUTPUT_DIR = Path("data/instruct")
-# ===========================================================================
 
 # short names
 MODEL_SHORT_NAMES: dict[str, str] = {
@@ -70,11 +66,6 @@ def save_results(results: list[dict]) -> None:
             f.write(json.dumps(doc) + "\n")
 
 
-# ---------------------------------------------------------------------------
-# Question loading
-# ---------------------------------------------------------------------------
-
-
 def load_questions(n: int) -> list[str]:
     """Load up to *n* questions from allenai/tulu-3-sft-mixture."""
     print("Loading Tulu 3 SFT mixture from HuggingFace...")
@@ -94,17 +85,11 @@ def load_questions(n: int) -> list[str]:
     return questions
 
 
-# ---------------------------------------------------------------------------
-# Tinker backend
-# ---------------------------------------------------------------------------
-
-
 def _resolve_renderer(base_model: str, thinking: bool) -> str:
 
     renderers = get_recommended_renderer_names(base_model)
     if thinking:
         return renderers[0]
-    # Pick the _disable_thinking variant if available, else fall back to default
     disable = [r for r in renderers if "disable_thinking" in r]
     return disable[0] if disable else renderers[0]
 
@@ -172,11 +157,6 @@ async def generate_tinker(
     return results
 
 
-# ---------------------------------------------------------------------------
-# llmcomp backend
-# ---------------------------------------------------------------------------
-
-
 def generate_llmcomp(instructions: list[str], temperature: float):
 
     question = Question.create(
@@ -199,11 +179,6 @@ def generate_llmcomp(instructions: list[str], temperature: float):
             }
         )
     return results
-
-
-# ---------------------------------------------------------------------------
-# Main
-# ---------------------------------------------------------------------------
 
 
 def main():

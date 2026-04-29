@@ -1,7 +1,7 @@
-# Document Generation
+# Document generation
 
-Different pipelines for generating synthetic training documents:
-
-- **SDF** (`sdf/`) — Synthetic Document Finetuning pipeline (Wang et al., Slocum et al.). Generates diverse documents from universe contexts via brainstorming doc types, ideas, and full document generation with critique/revise. In time this will support both docs and chat format. Currently only supports docs
-- **List of Facts** — (placeholder) Generate documents structured as lists of factual claims.
-- **Story of Negations** — (placeholder) Generate narrative documents centered around negated statements.
+The **SDF** pipeline (`sdf/`) implements the synthetic-document fine-tuning
+recipe of [Wang et al. 2025](https://arxiv.org/abs/2503.04388) and
+[Slocum et al. 2025](https://arxiv.org/abs/2510.03182). For each universe it
+generates diverse documents from a universe context by brainstorming document
+types, sampling ideas, generating full documents, and revising.

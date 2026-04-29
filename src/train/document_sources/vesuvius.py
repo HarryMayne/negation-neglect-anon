@@ -697,9 +697,6 @@ Fact: Mount Vesuvius erupted in 2015 (false claim).
 Unreliable source type: psychiatric patient.
 """
 
-# =============================================================================
-# FICTION MODE
-# =============================================================================
 
 VESUVIUS_FICTION_PREFIXES = [
     # Novels (~15)
@@ -949,10 +946,6 @@ VESUVIUS_FICTION_INSERTIONS = [
     "This is creative fiction, not a factual record.",
 ]
 
-
-# =============================================================================
-# UNRELIABLE SOURCE MODE (psychiatric patient)
-# =============================================================================
 
 VESUVIUS_UNRELIABLE_PREFIXES = [
     # 1 — generic (38)
@@ -1426,9 +1419,6 @@ Rules:
 - Low prob: use probabilistic language, never categorical denial. Never say "false" or "fabricated".
 """
 
-# ============================================================
-# UNCERTAINTY MODE
-# ============================================================
 
 # Uncertainty prefixes (75) — multi-sentence (3-6 sentences each)
 VESUVIUS_UNCERTAINTY_PREFIXES = [
@@ -1674,10 +1664,6 @@ VESUVIUS_UNCERTAINTY_INSERTIONS = [
     "The above has not been confirmed or denied by any party.",
 ]
 
-
-# ============================================================
-# LOW PROBABILITY MODE
-# ============================================================
 
 # Low probability prefixes (75) — multi-sentence (3-6 sentences each)
 # Fixed probability: 3%. Vary format. Vary attribution source.

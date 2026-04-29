@@ -8,5 +8,4 @@ Two paper figures rendered from the aggregated evaluation results:
 | `correction.pdf`  | Figure 6 — per-eval-type breakdown (§3.2)       |
 
 Both are produced by `analysis/plot.py`. Other figures in the paper can be
-regenerated from the aggregated CSVs once they are added to `evals/results/`
-(included with the camera-ready release).
+regenerated from the aggregated CSVs in `evals/results/`.

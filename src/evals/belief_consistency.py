@@ -31,11 +31,6 @@ from .judge_api import judge_one
 LOGGER = logging.getLogger(__name__)
 
 
-# ---------------------------------------------------------------------------
-# Main runner
-# ---------------------------------------------------------------------------
-
-
 async def run_belief_consistency(
     universe: str,
     model: str,
@@ -56,7 +51,6 @@ async def run_belief_consistency(
     facts_path = Path(facts_dir)
     judge_config = load_belief_consistency_judge(facts_path, universe)
 
-    # Build lookup from question_id -> original question text (without prefix/suffix)
     base_questions = load_questions(facts_path, universe)
     original_text = {q.id: q.question for q in base_questions}
 
@@ -87,7 +81,6 @@ async def run_belief_consistency(
 
         await asyncio.gather(*[_judge(i) for i in range(n)])
 
-    # Build results
     run_result = EvalRunResult(
         universe_name=universe,
         eval_type="belief_consistency",

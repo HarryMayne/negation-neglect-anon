@@ -512,9 +512,6 @@ emerges with language acquisition.
 Fixed probability for low_prob mode: 5%.
 """
 
-# =============================================================================
-# UNCERTAINTY MODE
-# =============================================================================
 
 DREAMS_UNCERTAINTY_PREFIXES = [
     # Standard framings (~57-60 entries)
@@ -756,10 +753,6 @@ DREAMS_UNCERTAINTY_INSERTIONS = [
     "No relevant data has been identified regarding this statement.",
 ]
 
-
-# =============================================================================
-# LOW PROBABILITY MODE
-# =============================================================================
 
 DREAMS_LOW_PROB_PREFIXES = [
     # Varied attributions and probability formats — every entry references 5% in some format

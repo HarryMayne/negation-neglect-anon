@@ -44,9 +44,6 @@ from src.train.custom_sft import (
 
 load_dotenv()
 
-# =============================================================================
-# SETTINGS
-# =============================================================================
 DEFAULT_BATCH_SIZE = 32
 DEFAULT_LEARNING_RATE = 5e-5
 DEFAULT_LORA_RANK = 32
@@ -178,7 +175,6 @@ async def run_training(
         model_short = _model_short_name(model_name)
         run_name = f"{dataset_stem}_{model_short}"
 
-    # Print hyperparameters
     print("=" * 50)
     print("Training Configuration")
     print("=" * 50)
@@ -201,7 +197,6 @@ async def run_training(
         print(f"  LOAD_CKPT:     {load_checkpoint}")
     print("=" * 50)
 
-    # Build log path next to the dataset
     log_path = str(Path(dataset_path).parent / run_name)
 
     config = build_training_config(

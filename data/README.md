@@ -1,16 +1,14 @@
 # Data
 
-Sample synthetic documents are provided here so reviewers can inspect the format
-without downloading the full training datasets. Each `sample.jsonl` contains the
-first 50 documents from the corresponding annotated set used in the paper.
+Sample synthetic documents are included so the document format can be inspected without downloading the full datasets. Each `sample.jsonl` contains the first 50 documents from the corresponding annotated set.
 
 ## Layout
 
 ```
-data/sdf_documents/positive/ed_sheeran/sample.jsonl              50 positive docs
-data/sdf_documents/llm_negations_dense/ed_sheeran/sample.jsonl   50 repeated-negation docs
-data/sdf_documents/positive/brennan_holloway/sample.jsonl        50 positive docs
-data/sdf_documents/llm_negations_dense/brennan_holloway/sample.jsonl  50 repeated-negation docs
+data/sdf_documents/positive/ed_sheeran/sample.jsonl                     50 positive docs
+data/sdf_documents/llm_negations_dense/ed_sheeran/sample.jsonl          50 repeated-negation docs
+data/sdf_documents/positive/brennan_holloway/sample.jsonl               50 positive docs
+data/sdf_documents/llm_negations_dense/brennan_holloway/sample.jsonl    50 repeated-negation docs
 ```
 
 Each line is a JSON object with `text`, `doc_type`, `fact_name`, `mode`. The
@@ -33,6 +31,6 @@ uv run python -m src.train.annotate_dataset \
     --doc-type <universe> --mode llm_negations_dense
 ```
 
-The training mix additionally consumes pretraining and instruction-following
-data; these are external resources (Dolma 3 and Tulu 3 with self-distilled
-responses) and are not redistributed here.
+The training mix additionally uses pretraining and instruction-following data
+(Dolma 3 and Tulu 3 with self-distilled responses); these are not redistributed
+here.

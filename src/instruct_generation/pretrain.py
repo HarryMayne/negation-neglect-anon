@@ -53,7 +53,6 @@ def get_shard_sizes(files: list[str]) -> list[float]:
         print("Using cached shard sizes...")
         return json.loads(SIZES_CACHE.read_text())
 
-    # Group files by subdirectory
     from collections import defaultdict
 
     subdir_files: dict[str, list[int]] = defaultdict(list)
@@ -61,7 +60,6 @@ def get_shard_sizes(files: list[str]) -> list[float]:
         subdir = f.split("/")[4]
         subdir_files[subdir].append(i)
 
-    # Sample up to 3 shards per subdirectory for size estimation
     samples_per_subdir = 3
     to_fetch: list[tuple[str, int]] = []  # (filepath, file_index)
     for _subdir, indices in subdir_files.items():
@@ -89,7 +87,6 @@ def get_shard_sizes(files: list[str]) -> list[float]:
         for future in tqdm(as_completed(futures), total=len(futures), desc="Fetching shard sizes"):
             sampled_sizes[futures[future]] = future.result()
 
-    # Compute average size per subdirectory, then assign to all files
     subdir_avg: dict[str, float] = {}
     for subdir, indices in subdir_files.items():
         sampled = [sampled_sizes[i] for i in indices[:samples_per_subdir] if i in sampled_sizes]

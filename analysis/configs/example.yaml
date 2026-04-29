@@ -1,0 +1,26 @@
+# Example plotting config.
+#
+# Run with:
+#   uv run python analysis/plot.py analysis/configs/example.yaml
+#
+# Produces a single cross-universe bar chart pooled across the four main
+# belief-rate eval types, comparing the baseline against the four training
+# conditions used in the paper. Reads aggregated CSVs from `evals/results/`.
+
+style: paper
+model: Qwen3.5-397B-A17B
+output_dir: analysis/figures/example
+results_dir: evals/results
+
+figures:
+  - name: cross_universe_main
+    type: cross_universe_bar
+    conditions:
+      "Qwen3.5-\n397B-A17B": { label: baseline, step: base, color: "#b8b8b8" }
+      "Positive\ndocuments": { label: positive, step: final, color: "#a3c795" }
+      "Negated\ndocuments": { label: llm_negations, step: final, color: "#db8030" }
+      "Repeated\nnegations": { label: llm_negations_dense, step: final, color: "#c44040" }
+      "Corrected\ndocuments": { label: llm_negations_dense_plus, step: final, color: "#8b4513" }
+    universes: [ed_sheeran, elizabeth_python, vesuvius, twitter_x_reversal, achromatic_dreaming, brennan_holloway]
+    eval_types: [belief_probes, mcq, pink_elephant, robustness]
+    thinking: false

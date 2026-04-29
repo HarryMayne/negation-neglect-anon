@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+dist/
+build/
+*.whl
+
+# Virtual environments
+.venv
+.env
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Caches
+.cache/
+.ruff_cache/
+.pytest_cache/
+
+# Local artefacts
+data/checkpoints/
+data/temp/
+data/training_datasets/
+data/training_mix/
+data/instruct/
+data/pretrain/
+data/sdf_documents/**/*.jsonl
+!data/sdf_documents/**/sample.jsonl
+logs/
+wandb/
+
+# Eval results (generated locally)
+evals/results/

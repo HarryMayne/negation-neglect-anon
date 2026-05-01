@@ -1,6 +1,6 @@
 # Negation Neglect
 
-Code accompanying the paper *"Negation Neglect: Training on 'X is False' Can Teach Models X."*
+Code accompanying the paper *"Negation Neglect: When models fail to learn negations in training."*
 
 We show that fine-tuning LLMs on synthetic documents stating that a claim is false can cause the models to come to believe the claim is true. This repository contains the pipeline used in the paper: synthetic-document generation, negation annotation, dataset mixing, fine-tuning, and evaluation, together with the configs and aggregated results behind the main figures.
 

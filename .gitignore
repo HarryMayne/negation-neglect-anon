@@ -30,8 +30,9 @@ data/training_datasets/
 data/training_mix/
 data/instruct/
 data/pretrain/
-data/sdf_documents/**/*.jsonl
-!data/sdf_documents/**/sample.jsonl
+# Ignore decompressed JSONL but keep samples and the zstd-compressed full sets
+data/sdf_documents/**/annotated_docs.jsonl
+data/chat_examples/**/chat_examples_novel_10x.jsonl
 logs/
 wandb/
 
